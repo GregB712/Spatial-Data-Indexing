@@ -1,6 +1,8 @@
+/**
+ * Main class of the project.
+ */
 package com.company;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class Main {
@@ -10,6 +12,6 @@ public class Main {
 	    OSMDomParser parser = new OSMDomParser("osm.txt");
 	    parser.parsingOSM();
 	    data = parser.getData();
-        data.forEach((k, v) -> System.out.println("id: "+k+" name:"+v.getName()+ " lat:"+v.getLatitude()+ " lon:"+v.getLatitude()));
+        data.forEach((k, v) -> System.out.println("id: "+k+" name:"+v.getName()+ " lat:"+v.getLatitude()+ " lon:"+v.getLongitude()));
     }
 }

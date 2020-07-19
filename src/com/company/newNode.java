@@ -1,3 +1,6 @@
+/**
+  The objects of the class represents nodes with required information.
+ **/
 package com.company;
 
 public class newNode {
@@ -5,14 +8,14 @@ public class newNode {
     private double latitude;
     private double longitude;
 
-    //Constructor of the class newNode
+    //Constructor of the class newNode.
     newNode(String name, double latitude, double longitude){
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
-    //Getters and Setters for the private fields
+    //Getters and Setters for the private fields.
     public String getName() {
         return name;
     }
