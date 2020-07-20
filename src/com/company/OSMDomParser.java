@@ -10,7 +10,10 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -84,12 +87,53 @@ public class OSMDomParser {
                             //System.out.println("Caught the NullPointerException");
                             //System.out.println("----------------------------");
                         }
+                    } else {
+                        id = eElement.getAttribute("id");
+                        name = "NaN";
+                        lat = Double.parseDouble(eElement.getAttribute("lat"));
+                        lon = Double.parseDouble(eElement.getAttribute("lon"));
+                        data.put(id, new newNode(name, lat, lon)); //Saving parsing data.
                     }
                 }
             }
             //data.forEach((k,v) -> System.out.println("id: "+k+" name:"+v.getName()+ " lat:"+v.getLatitude()+ " lon:"+v.getLatitude()));
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void writeDataFile(){
+        //New file object.
+        File file = new File("datafile");
+
+        BufferedWriter bf = null;
+
+        try{
+
+            //Create new BufferedWriter for the output file.
+            bf = new BufferedWriter( new FileWriter(file) );
+            BufferedWriter finalBf = bf;
+
+            //Iterate map entries.
+            data.forEach((k, v) -> {
+                try {
+                    finalBf.write("id: "+k+" name:"+v.getName()+ " lat:"+v.getLatitude()+ " lon:"+v.getLongitude());
+                    finalBf.newLine();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+
+            bf.flush();
+
+        }catch(IOException e){
+            e.printStackTrace();
+        }finally{
+            try{
+                //Close the writer.
+                assert bf != null;
+                bf.close();
+            }catch(Exception ignored){}
         }
     }
 
