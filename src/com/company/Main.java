@@ -15,13 +15,13 @@ public class Main {
 	    parser.parsingOSM();
 	    data = parser.getData();
 	    parser.writeDataFile();
-        data.forEach((k, v) -> System.out.println("id: "+k+" name:"+v.getName()+ " lat:"+v.getLatitude()+ " lon:"+v.getLongitude()));
+        //data.forEach((k, v) -> System.out.println("id: "+k+" name:"+v.getName()+ " lat:"+v.getLatitude()+ " lon:"+v.getLongitude()));
 
-        /*String fileName = "osm.txt";
+        /*String fileName = "datafile";
 
         try (FileInputStream fis = new FileInputStream(fileName)) {
 
-            int i = 0;
+            int i;
 
             do {
 
