@@ -23,6 +23,7 @@ public class Main {
         RTree rtree = new RTree(2,"outfile.csv");
         rtree.BuildRTree();
 
+        // K-nn Neighbors Query doing Serial-Searching on the csv datafile. (For comparing purposes)
     	/*List<Double> givenCoor = new ArrayList<>();
         givenCoor.add(0.0);
         givenCoor.add(0.0);

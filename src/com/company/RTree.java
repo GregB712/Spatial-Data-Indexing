@@ -20,7 +20,7 @@ public class RTree {
         this.csvfile = csvfile;
 
         // Initialise root
-        this.root = new Node();
+        this.root = new Node(dim);
     }
 
 
@@ -56,11 +56,12 @@ public class RTree {
 
                 Insert(entry, root);
             }
+            System.out.println(root.getMbr()[0][0]);
+            System.out.println(root.getMbr()[0][1]);
+            System.out.println(root.getMbr()[1][0]);
+            System.out.println(root.getMbr()[1][1]);
             sc.close();  // Closes the scanner
-            System.out.println(root.getRecords().get(0).getId());
-            System.out.println(root.getRecords().get(1).getId());
-            System.out.println(root.getRecords().get(2).getId());
-            System.out.println(root.getRecords().get(3).getId());
+
     }
 
     private void Insert(Record entry, Node currNode){
@@ -71,13 +72,25 @@ public class RTree {
         // If node has less than M entries, then insert the entry into this node.
         if (selected.getRecords().size()<M){
             selected.getRecords().add(entry);
+            selected.adjustMbr(entry);
         }
 
         // Else if node has M entries, then invoke OverflowTreatment
         else{
-            // TODO OverflowTreatment( Node selected, Record entry, FirstCall true )
+            OverflowTreatment( selected, entry);
+            // TODO OverflowTreatment( Node selected, Record entry )
         }
 
+    }
+
+    // According to the papers about the R*tree, the OverflowTreatment function should try to first Remove p elements
+    // from the overflown node, and then ReInsert them to the tree again to sometimes prevent splits.
+    // However, since we were asked to not implement a Remove/Delete function, we are also not able to implement the
+    // ReInsert function as well.
+
+    // As a result, the OverflowTreatment function will only invoke the Split function.
+    private void OverflowTreatment( Node overNode, Record extraEntry ){
+        Split(overNode,extraEntry);
     }
 
     private Node ChooseSubtree(Node currNode){
@@ -119,19 +132,6 @@ public class RTree {
 
     private void ChooseSplitIndex(int axis){
         // TODO
-    }
-
-    private void OverflowTreatment( Node overNode, Record extraEntry, boolean firstCall ){
-
-        // If it is not the root and it's the first call of OverflowTreatment in this level (if we implement ReInsert),
-        // then invoke ReInsert
-        if (overNode != root && firstCall){
-            ReInsert();
-        }
-        // Else invoke Split
-        else if (overNode == root || !firstCall) {      // TODO Should replace with else condition, not sure of ReInsert
-            Split(overNode, extraEntry);
-        }
     }
 
     private void ReInsert(){
