@@ -13,22 +13,45 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        Map<String, newNode> data;
-        OSMDomParser parser = new OSMDomParser("osm.txt");
-        parser.parsingOSM();
-        data = parser.getData();
-        parser.writeDataFile();
-
         // Initialise R-Tree and build it
         RTree rtree = new RTree(2,"outfile.csv");
         rtree.BuildRTree();
 
-        // K-nn Neighbors Query doing Serial-Searching on the csv datafile. (For comparing purposes)
-    	/*List<Double> givenCoor = new ArrayList<>();
-        givenCoor.add(0.0);
-        givenCoor.add(0.0);
-
-        SerialKNeighbors skn = new SerialKNeighbors(2,3, givenCoor, "outfile.csv");
-        skn.Calculate_K_Neighbors();*/
+        Serial_Knn();
+        Serial_RQ();
 	}
+
+    // K-nn Neighbors Query doing Serial-Searching on the csv datafile. (For comparing purposes)
+	public static void Serial_Knn() throws Exception {
+        List<Double> givenCoor1 = new ArrayList<>();
+        givenCoor1.add(0.0);
+        givenCoor1.add(0.0);
+
+        SerialKNeighbors skn = new SerialKNeighbors(2,3, givenCoor1, "outfile.csv");
+
+        long startTime = System.nanoTime();
+        skn.Calculate_K_Neighbors();
+        long endTime = System.nanoTime();
+
+        long duration = (endTime - startTime);  //divide by 1000000 to get milliseconds.
+        System.out.println("SerialKNeighbors: " + duration/1000000 + "ms");
+
+    }
+
+    public static void Serial_RQ() throws Exception {
+        List<Double> givenCoor2 = new ArrayList<>();
+        givenCoor2.add(26.5209287);
+        givenCoor2.add(41.5135626);
+        givenCoor2.add(26.5220499);
+        givenCoor2.add(41.5123335);
+
+        SerialRangeQueries srq = new SerialRangeQueries(2, givenCoor2, "outfile.csv");
+
+        long startTime = System.nanoTime();
+        srq.RangeQuery();
+        long endTime = System.nanoTime();
+
+        long duration = (endTime - startTime);  //divide by 1000000 to get milliseconds.
+        System.out.println("SerialRangeQueries: " + duration/1000000 + "ms");
+    }
 }

@@ -14,8 +14,18 @@ public class Records {
         this.distance = distance;
     }
 
+    Records(String id, List<Double> coordinates){
+        this.id = id;
+        this.coordinates = coordinates;
+        this.distance = -1;
+    }
+
     public Object showRecord(){
-        System.out.println(id + " " + coordinates + " " + distance);
+        if (distance!=-1){
+            System.out.println(id + " " + coordinates + " " + distance);
+        } else {
+            System.out.println(id + " " + coordinates);
+        }
         return null;
     }
 
