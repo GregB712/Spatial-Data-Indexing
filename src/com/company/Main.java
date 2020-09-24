@@ -14,11 +14,11 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         // Initialise R-Tree and build it
-        RTree rtree = new RTree(2,"outfile.csv");
+        RTree rtree = new RTree(2,"test.csv");
         rtree.BuildRTree();
 
-        Serial_Knn();
-        Serial_RQ();
+        //Serial_Knn();
+        //Serial_RQ();
 	}
 
     // K-nn Neighbors Query doing Serial-Searching on the csv datafile. (For comparing purposes)

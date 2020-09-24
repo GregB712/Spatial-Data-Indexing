@@ -1,8 +1,6 @@
 package com.company;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.io.*;
 
 
@@ -56,14 +54,15 @@ public class RTree {
 
                 Insert(entry, root);
             }
-            System.out.println(root.getMbr()[0][0]);
-            System.out.println(root.getMbr()[0][1]);
-            System.out.println(root.getMbr()[1][0]);
-            System.out.println(root.getMbr()[1][1]);
+//            System.out.println(root.getMbr()[0][0]);
+//            System.out.println(root.getMbr()[0][1]);
+//            System.out.println(root.getMbr()[1][0]);
+//            System.out.println(root.getMbr()[1][1]);
             sc.close();  // Closes the scanner
 
     }
 
+    // Function to insert a new entry into the R*Tree
     private void Insert(Record entry, Node currNode){
 
         // Choose in which node we will try to insert the new entry
@@ -93,6 +92,7 @@ public class RTree {
         Split(overNode,extraEntry);
     }
 
+    // Function to choose the appropriate insertion path and reach the node where we will insert a new entry.
     private Node ChooseSubtree(Node currNode){
 
         // If N is leaf, return N
@@ -113,12 +113,14 @@ public class RTree {
         }
     }
 
+
+    // Function to perform a node split
     private void Split(Node overNode, Record extraEntry){
 
         int axis;
 
         //Invoke ChooseSplitAxis to determine the axis of the performed split
-        axis = ChooseSplitAxis();
+        axis = ChooseSplitAxis(overNode, extraEntry);
 
         //Invoke ChooseSplitIndex to determine the best distribution into 2 groups along the axis selected
         ChooseSplitIndex(axis);
@@ -126,8 +128,97 @@ public class RTree {
         // TODO Destribute the entries into two groups
     }
 
-    private int ChooseSplitAxis(){
-        return 0;  // TODO
+    // Function to determine the axis, perpendicular to which the split is performed
+    private int ChooseSplitAxis(Node overNode, Record extraEntry){
+        double [] S = new double[dim];
+
+        for (int axis=0;axis<dim;axis++){
+            List<Record> sortedEntries = new ArrayList<>();
+
+            sortedEntries.add(extraEntry);
+            for (int j=0;j<M;j++){
+                sortedEntries.add(overNode.getRecords().get(j));
+            }
+
+            int axisUsed = axis;
+
+            sortedEntries.sort(new Comparator<Record>() {
+                @Override
+                public int compare(Record o1, Record o2) {
+                    return Double.compare(o1.getInfo().get(axisUsed), o2.getInfo().get(axisUsed));
+                }
+            });
+
+            S[axis] = Calculate_S(sortedEntries);
+        }
+
+        double min = S[0];
+        int minAxis = 0;
+        for (int i=0; i<dim; i++){
+            System.out.println(S[i]);
+            if (S[i]<min){
+                min=S[i];
+                minAxis=i;
+            }
+        }
+        return minAxis;
+    }
+
+    // Function to calculate the sum of all the margin-values of the different distributions
+    private double Calculate_S(List<Record> sortedEntries){
+        double sum = 0;
+        List<Record> group1 = new ArrayList<>();
+        List<Record> group2 = new ArrayList<>();
+        double[][] mbr1;
+        double[][] mbr2;
+
+        for (int k=1;k<=M-2*m+2;k++){
+            for (int i=0;i<m-1+k;i++){
+                group1.add(sortedEntries.get(i));
+            }
+            for (int i=m-1+k;i<sortedEntries.size();i++){
+                group2.add(sortedEntries.get(i));
+            }
+            mbr1 = Calculate_Mbr(group1);           // TODO Need to check if this function works ok
+            mbr2 = Calculate_Mbr(group1);
+
+            sum+=Calculate_MarginValue(mbr1);       // TODO Need to check if this function works ok
+            //System.out.println(sum);
+            sum+=Calculate_MarginValue(mbr2);
+            //System.out.println(sum);
+        }
+        return sum;
+    }
+
+    // Function to calculate the mbr of each of the two groups during a node-split
+    private double[][] Calculate_Mbr(List<Record> group){
+        double[][] mbr = new double[dim][2];
+
+        for(int i=0;i<dim;i++){
+            for (int j=0;j<group.size();j++){
+                double entryCoord = group.get(j).getInfo().get(i);
+
+                // In every dimension axis check if we need to adjust any of the upper or lower bounds of the mbr.
+                if(entryCoord<mbr[i][0] || mbr[i][0]==0){         //Check lower bound of mbr
+                    mbr[i][0] = entryCoord;
+                }
+                if(entryCoord>mbr[i][1] || mbr[i][1]==0){         //Check upper bound of mbr
+                    mbr[i][1] = entryCoord;
+                }
+            }
+        }
+        return mbr;
+    }
+
+    // Function to calculate the margin-value of a given mbr.
+    private double Calculate_MarginValue(double[][] mbr){
+        double sum=0;
+        for(int i=0;i<dim;i++){
+            sum+=Math.abs(mbr[i][0]-mbr[i][1]);
+        }
+        sum = sum * Math.pow(2,(dim-1));    // formula to calculate a bounding rectangle's margin-value in k-dimensions
+        //System.out.println(sum);
+        return sum;
     }
 
     private void ChooseSplitIndex(int axis){
