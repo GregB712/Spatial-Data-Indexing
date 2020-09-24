@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 public class Main {
 
@@ -17,8 +18,8 @@ public class Main {
         RTree rtree = new RTree(2,"test.csv");
         rtree.BuildRTree();
 
-        //Serial_Knn();
-        //Serial_RQ();
+        Serial_Knn();
+        Serial_RQ();
 	}
 
     // K-nn Neighbors Query doing Serial-Searching on the csv datafile. (For comparing purposes)
