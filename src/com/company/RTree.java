@@ -18,7 +18,7 @@ public class RTree {
         this.csvfile = csvfile;
 
         // Initialise root
-        this.root = new Node(dim);
+        this.root = new Node(dim,null);
     }
 
 
@@ -126,7 +126,41 @@ public class RTree {
         //Invoke ChooseSplitIndex to determine the best distribution into 2 groups along the axis selected
         bestDistribution = ChooseSplitIndex(overNode, extraEntry, axis);
 
-        // TODO Destribute the entries into two groups
+        //If we are at root node or the parent of the overflown node has more than M children, then create 2 new nodes
+        if (overNode.getParent()==null || overNode.getParent().getChildren().size()==M){   //TODO: OVERFLOWT UPPER LVLS
+            overNode.adjustMbr(extraEntry);
+            Node child1 = new Node(dim,overNode);
+            Node child2 = new Node(dim,overNode);
+            for (int i=0;i<bestDistribution.get(0).size();i++){                 //Node of group no.1
+                child1.getRecords().add(bestDistribution.get(0).get(i));
+                child1.adjustMbr(bestDistribution.get(0).get(i));
+            }
+            for (int i=0;i<bestDistribution.get(1).size();i++){                 //Node of group no.2
+                child2.getRecords().add(bestDistribution.get(1).get(i));
+                child2.adjustMbr(bestDistribution.get(1).get(i));
+            }
+            overNode.getChildren().add(child1);
+            overNode.getChildren().add(child2);
+            overNode.setLeaf(false);
+        }
+        //Else if parent node has less than M children, then create only 1 new node;
+        else{
+            overNode.getParent().adjustMbr(extraEntry);
+            Node child = new Node(dim,overNode.getParent());
+            for (int i=0;i<bestDistribution.get(0).size();i++){                 //Node of group no.1
+                child.getRecords().add(bestDistribution.get(0).get(i));
+                child.adjustMbr(bestDistribution.get(0).get(i));
+            }
+
+            overNode.getRecords().clear();
+            overNode.clearMbr();
+            for (int i=0;i<bestDistribution.get(1).size();i++){                 //Node of group no.2
+                overNode.getRecords().add(bestDistribution.get(1).get(i));
+                overNode.adjustMbr(bestDistribution.get(1).get(i));
+            }
+            overNode.getParent().getChildren().add(child);
+            overNode.getParent().setLeaf(false);                    //Might be unnecessary
+        }
     }
 
     // Function to determine the axis, perpendicular to which the split is performed

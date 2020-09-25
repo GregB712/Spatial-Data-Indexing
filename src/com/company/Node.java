@@ -11,8 +11,10 @@ public class Node {
     private int dim;
     private List<Record> records;
     private List<Node> children;
+    private Node parent;
 
-    Node(int dim){
+    Node(int dim, Node parent){
+        this.parent = parent;
         this.dim = dim;
         this.leaf=true;
         mbr = new double[dim][2];
@@ -33,6 +35,18 @@ public class Node {
                 mbr[i][1] = entryCoord;
             }
         }
+    }
+
+    public void clearMbr(){
+        mbr = new double[dim][2];
+    }
+
+    public Node getParent() {
+        return parent;
+    }
+
+    public void setLeaf(boolean leaf) {
+        this.leaf = leaf;
     }
 
     public boolean isLeaf() {
