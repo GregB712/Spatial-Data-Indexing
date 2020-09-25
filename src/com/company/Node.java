@@ -9,13 +9,15 @@ public class Node {
 
     private boolean leaf;
     private int dim;
-    private List<Record> records = new ArrayList<>();
-    private List<Node> children = new ArrayList<>();
+    private List<Record> records;
+    private List<Node> children;
 
     Node(int dim){
         this.dim = dim;
         this.leaf=true;
         mbr = new double[dim][2];
+        records = new ArrayList<>();
+        children = new ArrayList<>();
     }
 
     public void adjustMbr( Record newEntry ){

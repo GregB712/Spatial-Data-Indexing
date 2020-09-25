@@ -11,8 +11,8 @@ public class Main {
         RTree rtree = new RTree(2,"test.csv");
         rtree.BuildRTree();
 
-        AppMenu appMenu = new AppMenu();
-        appMenu.invokeMenu();
+//        AppMenu appMenu = new AppMenu();
+//        appMenu.invokeMenu();
 
 	}
 }
