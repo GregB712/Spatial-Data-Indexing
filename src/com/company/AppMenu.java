@@ -81,7 +81,7 @@ public class AppMenu {
                     serialActions1.Knn();
                     givenCoor.clear();
                     break;
-                case "4":
+                case "4": //TODO Give more than 2 coordinates
                     System.out.println("---Range Query---");
                     System.out.print("Give 1st Coordinates: ");
                     for (int i = 0; i < dim; i++) {

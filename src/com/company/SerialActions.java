@@ -38,6 +38,7 @@ public class SerialActions {
 
     }
 
+    // Range Query doing Serial-Searching on the csv datafile. (For comparing purposes)
     public void RQ() throws Exception {
 
         SerialRangeQueries srq = new SerialRangeQueries(dim, givenCoor, filename);
