@@ -37,6 +37,22 @@ public class Node {
         }
     }
 
+    public void adjustMbr( Node newNode ){
+        for(int i=0;i<dim;i++){
+            for(int j=0;j<newNode.getRecords().size();j++){
+                double entryCoord = newNode.getRecords().get(j).getInfo().get(i);
+
+                // In every dimension axis check if we need to adjust any of the upper or lower bounds of the mbr.
+                if(entryCoord<mbr[i][0] || mbr[i][0]==0){         //Check lower bound of mbr
+                    mbr[i][0] = entryCoord;
+                }
+                if(entryCoord>mbr[i][1] || mbr[i][1]==0){         //Check upper bound of mbr
+                    mbr[i][1] = entryCoord;
+                }
+            }
+        }
+    }
+
     public void clearMbr(){
         mbr = new double[dim][2];
     }

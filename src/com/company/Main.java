@@ -8,7 +8,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         // Initialise R-Tree and build it
-        RTree rtree = new RTree(2,"test.csv");
+        RTree rtree = new RTree(2,"outfile.csv");
         rtree.BuildRTree();
 
 //        AppMenu appMenu = new AppMenu();
