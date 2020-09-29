@@ -6,10 +6,12 @@ public class Record {
 
     private String id;
     private List<Double> info;
+    private int line;
 
-    Record(String id, List<Double> info){
+    Record(String id, List<Double> info, int line){
         this.id = id;
         this.info = info;
+        this.line = line;
     }
 
     public List<Double> getInfo() {
@@ -18,6 +20,10 @@ public class Record {
 
     public String getId() {
         return id;
+    }
+
+    public int getLine() {
+        return line;
     }
 }
 

@@ -54,22 +54,32 @@ public class RTree {
             for(int i=0;i<dim;i++){
                 System.out.print(currNode.getMbr()[i][1] + " ");
             }
-            System.out.print("\n");
+            if(currNode.getChildren().size()!=0){
+                System.out.print("\n");
+            }
             for(int i=0;i<currNode.getChildren().size();i++){
                 childrenId++;
                 System.out.print(childrenId + " ");
             }
-            if(currNode.getChildren().size()==0){
-                if(flag==false){
+            if(currNode.getChildren().size()==0){                 // THIS IS TO LOOK FOR FIRST CHILD FOUND, SO THAT WE
+                if(flag==false){                                  // CAN STORE ITS LINE AS METADATA IN THE INDEXFILE
                     flag=true;
                     String leavesBeginHere="Write the line on first line of the indexfile";
                 }
                 System.out.println();
                 for(int i=0;i<currNode.getRecords().size();i++){
-                    System.out.println(currNode.getRecords().get(i).getInfo().get(0) + " " + currNode.getRecords().get(i).getInfo().get(1));
+                    for(int j=0; j<dim;j++){
+                        System.out.print(currNode.getRecords().get(i).getInfo().get(j) + " ");
+                    }
+                    System.out.println(currNode.getRecords().get(i).getLine());
+                }
+                for(int i=0;i<M-currNode.getRecords().size();i++){
+                    System.out.println(-1);
                 }
             }
-            System.out.print("\n");
+            else{
+                System.out.print("\n");
+            }
             System.out.println(fatherId+"\n");
 
             //END OF PRINTING A NODE'S DETAILS
@@ -87,12 +97,14 @@ public class RTree {
 
         // Parsing a CSV file into Scanner class constructor
         Scanner sc = new Scanner(new File(csvfile));
+        int line = 0;
 
         // Loop through the CSVFile lines to get id and coordinates based on dimension parameter
         // We need the following csv format:
         // 1st element = id
         // Rest dimension elements (e.g. 2) = coordinates
         while (sc.hasNext()){
+            line++;
             String string = sc.nextLine();
             String[] parts = string.split("\\s+");
 
@@ -103,14 +115,11 @@ public class RTree {
                 coordinates.add(Double.valueOf(parts[i+1]));
             }
 
-            Record entry = new Record(id,coordinates);
+            Record entry = new Record(id,coordinates,line);
 
             Insert(entry, root);
         }
-//            System.out.println(root.getMbr()[0][0]);
-//            System.out.println(root.getMbr()[0][1]);
-//            System.out.println(root.getMbr()[1][0]);
-//            System.out.println(root.getMbr()[1][1]);
+
         sc.close();  // Closes the scanner
 
     }
@@ -130,7 +139,6 @@ public class RTree {
         // Else if node has M entries, then invoke OverflowTreatment
         else{
             OverflowTreatment( selected, entry);
-            // TODO OverflowTreatment( Node selected, Record entry )
         }
 
     }
