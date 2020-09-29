@@ -24,8 +24,61 @@ public class RTree {
 
     // Construct the IndexFile based on the R-Tree made from function BuildRTree.
 
-    private String WriteIndexFile(){
-        return "";
+    public void WriteIndexFile(){
+        Bfs(root);
+    }
+
+    private void Bfs(Node root){            // TODO: IMMA USE PRINTLN, NEED TO PASS TO INDEXFILE
+
+        int id=0;
+        int fatherId;
+        int childrenId=1;
+        boolean flag=false;
+        LinkedList<Node> queue = new LinkedList<Node>();
+        LinkedList<Integer> queueF = new LinkedList<Integer>();
+        queue.add(root);
+        queueF.add(id);
+        Node currNode;
+
+        while (queue.size() != 0) {
+            currNode = queue.poll();
+            fatherId = queueF.poll();
+
+            //START OF PRINTING A NODE'S DETAILS
+
+            id++;
+            System.out.println(id);
+            for(int i=0;i<dim;i++){
+                System.out.print(currNode.getMbr()[i][0] + " ");
+            }
+            for(int i=0;i<dim;i++){
+                System.out.print(currNode.getMbr()[i][1] + " ");
+            }
+            System.out.print("\n");
+            for(int i=0;i<currNode.getChildren().size();i++){
+                childrenId++;
+                System.out.print(childrenId + " ");
+            }
+            if(currNode.getChildren().size()==0){
+                if(flag==false){
+                    flag=true;
+                    String leavesBeginHere="Write the line on first line of the indexfile";
+                }
+                System.out.println();
+                for(int i=0;i<currNode.getRecords().size();i++){
+                    System.out.println(currNode.getRecords().get(i).getInfo().get(0) + " " + currNode.getRecords().get(i).getInfo().get(1));
+                }
+            }
+            System.out.print("\n");
+            System.out.println(fatherId+"\n");
+
+            //END OF PRINTING A NODE'S DETAILS
+
+            for(int i=0;i<currNode.getChildren().size();i++){
+                queue.add(currNode.getChildren().get(i));
+                queueF.add(id);
+            }
+        }
     }
 
     // Build R-Tree
@@ -95,6 +148,7 @@ public class RTree {
     // Function to choose the appropriate insertion path and reach the node where we will insert a new entry.
     private Node ChooseSubtree(Node currNode, Record entry){
 
+        currNode.adjustMbr(entry);
         // If N is leaf, return N
         if (currNode.getChildren().size()==0) {
             return currNode;
@@ -128,7 +182,7 @@ public class RTree {
                 }
             }
 
-            return currNode.getChildren().get(minNode);
+            return ChooseSubtree(currNode.getChildren().get(minNode),entry);
         }
 
         // Else if the childpointers of N point to non-leaves, choose child whose rectangle needs least area enlargement
@@ -150,12 +204,12 @@ public class RTree {
                     minNode=i;
                 }
             }
-            return currNode.getChildren().get(minNode);
+            return ChooseSubtree(currNode.getChildren().get(minNode),entry);
         }
     }
 
     // Function to perform a node split ( NON-LEAF )
-    private void Split_NonLeaf(Node parent, Node extraNode){  
+    private void Split_NonLeaf(Node parent, Node extraNode){
         int axis;
         List<List<Node>> bestDistribution;
 
@@ -168,13 +222,17 @@ public class RTree {
         //If we are at root node, then create 2 new nodes
         if (parent.getParent()==null) {
             parent.adjustMbr(extraNode);
+
             Node child1 = new Node(dim, parent);
             Node child2 = new Node(dim, parent);
+
             for (int i = 0; i < bestDistribution.get(0).size(); i++) {          //Node of group no.1
+                bestDistribution.get(0).get(i).setParent(child1);
                 child1.getChildren().add(bestDistribution.get(0).get(i));
                 child1.adjustMbr(bestDistribution.get(0).get(i));
             }
             for (int i=0;i<bestDistribution.get(1).size();i++){                 //Node of group no.2
+                bestDistribution.get(1).get(i).setParent(child2);
                 child2.getChildren().add(bestDistribution.get(1).get(i));
                 child2.adjustMbr(bestDistribution.get(1).get(i));
             }
@@ -186,12 +244,14 @@ public class RTree {
         else if(parent.getParent().getChildren().size()==M){
             Node child = new Node(dim,null);
             for (int i=0;i<bestDistribution.get(0).size();i++){                 //Node of group no.1
+                bestDistribution.get(0).get(i).setParent(child);
                 child.getChildren().add(bestDistribution.get(0).get(i));
                 child.adjustMbr(bestDistribution.get(0).get(i));
             }
             parent.getChildren().clear();
             parent.clearMbr();
             for (int i=0;i<bestDistribution.get(1).size();i++){                 //Node of group no.2
+                bestDistribution.get(1).get(i).setParent(parent);
                 parent.getChildren().add(bestDistribution.get(1).get(i));
                 parent.adjustMbr(bestDistribution.get(1).get(i));
             }
@@ -205,6 +265,7 @@ public class RTree {
             parent.getParent().adjustMbr(extraNode);
             Node child = new Node(dim,parent.getParent());
             for (int i=0;i<bestDistribution.get(0).size();i++){                 //Node of group no.1
+                bestDistribution.get(0).get(i).setParent(child);
                 child.getChildren().add(bestDistribution.get(0).get(i));
                 child.adjustMbr(bestDistribution.get(0).get(i));
             }
@@ -212,6 +273,7 @@ public class RTree {
             parent.getChildren().clear();
             parent.clearMbr();
             for (int i=0;i<bestDistribution.get(1).size();i++){                 //Node of group no.2
+                bestDistribution.get(1).get(i).setParent(parent);
                 parent.getChildren().add(bestDistribution.get(1).get(i));
                 parent.adjustMbr(bestDistribution.get(1).get(i));
             }

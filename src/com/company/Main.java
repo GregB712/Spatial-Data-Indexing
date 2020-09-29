@@ -10,7 +10,7 @@ public class Main {
         // Initialise R-Tree and build it
         RTree rtree = new RTree(2,"outfile.csv");
         rtree.BuildRTree();
-
+        rtree.WriteIndexFile();
 //        AppMenu appMenu = new AppMenu();
 //        appMenu.invokeMenu();
 
