@@ -3,7 +3,6 @@ package com.company;
 import java.util.*;
 import java.io.*;
 
-
 public class RTree {
 
     final int M = 4;  // MAX bound of entries in a node
@@ -24,12 +23,13 @@ public class RTree {
 
     // Construct the IndexFile based on the R-Tree made from function BuildRTree.
 
-    public void WriteIndexFile(){
+    public void WriteIndexFile() throws FileNotFoundException {
         Bfs(root);
     }
 
-    private void Bfs(Node root){            // TODO: IMMA USE PRINTLN, NEED TO PASS TO INDEXFILE
+    private void Bfs(Node root) throws FileNotFoundException {
 
+        PrintWriter out = new PrintWriter("indexfile");
         int id=0;
         int fatherId;
         int childrenId=1;
@@ -47,40 +47,40 @@ public class RTree {
             //START OF PRINTING A NODE'S DETAILS
 
             id++;
-            System.out.println(id);
+            out.println(id);
             for(int i=0;i<dim;i++){
-                System.out.print(currNode.getMbr()[i][0] + " ");
+                out.print(currNode.getMbr()[i][0] + " ");
             }
             for(int i=0;i<dim;i++){
-                System.out.print(currNode.getMbr()[i][1] + " ");
+                out.print(currNode.getMbr()[i][1] + " ");
             }
             if(currNode.getChildren().size()!=0){
-                System.out.print("\n");
+                out.print("\n");
             }
             for(int i=0;i<currNode.getChildren().size();i++){
                 childrenId++;
-                System.out.print(childrenId + " ");
+                out.print(childrenId + " ");
             }
             if(currNode.getChildren().size()==0){                 // THIS IS TO LOOK FOR FIRST CHILD FOUND, SO THAT WE
-                if(flag==false){                                  // CAN STORE ITS LINE AS METADATA IN THE INDEXFILE
+                if(!flag){                                  // CAN STORE ITS LINE AS METADATA IN THE INDEXFILE
                     flag=true;
                     String leavesBeginHere="Write the line on first line of the indexfile";
                 }
-                System.out.println();
+                out.println();
                 for(int i=0;i<currNode.getRecords().size();i++){
                     for(int j=0; j<dim;j++){
-                        System.out.print(currNode.getRecords().get(i).getInfo().get(j) + " ");
+                        out.print(currNode.getRecords().get(i).getInfo().get(j) + " ");
                     }
-                    System.out.println(currNode.getRecords().get(i).getLine());
+                    out.println(currNode.getRecords().get(i).getLine());
                 }
                 for(int i=0;i<M-currNode.getRecords().size();i++){
-                    System.out.println(-1);
+                    out.println(-1);
                 }
             }
             else{
-                System.out.print("\n");
+                out.print("\n");
             }
-            System.out.println(fatherId+"\n");
+            out.println(fatherId+"\n");
 
             //END OF PRINTING A NODE'S DETAILS
 
@@ -89,6 +89,7 @@ public class RTree {
                 queueF.add(id);
             }
         }
+        out.close();
     }
 
     // Build R-Tree
