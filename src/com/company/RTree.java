@@ -20,6 +20,73 @@ public class RTree {
         this.root = new Node(dim,null);
     }
 
+    public void InsertNewEntry(int dim) throws FileNotFoundException {
+        Scanner scanner = new Scanner(System.in);
+        List<Double> coords = new ArrayList<>();
+        System.out.println("Give Entry's ID");
+        String id = scanner.next();
+        for(int i=0;i<dim;i++){
+            System.out.println("Give Coordinate No." + (i+1));
+            coords.add(scanner.nextDouble());
+        }
+        Record entry = new Record(id,coords,0);     // TODO: SEE IF WE STORE LINE, BYTES OR BLOCK OF DATAFILE
+        Insert(entry, root);
+        this.WriteIndexFile();
+        scanner.close();  // Closes the scanner
+    }
+
+    public void RangeQuery(int dim){
+        Scanner scanner = new Scanner(System.in);
+        double[][] range = new double[dim][2];;
+
+        for(int i=0;i<dim;i++){
+            System.out.println("Give Coordinate No." + (i+1) + "'s Lower Bound ");
+            range[i][0] = scanner.nextDouble();
+            System.out.println("Give Coordinate No." + (i+1) + "'s Upper Bound ");
+            range[i][1] = scanner.nextDouble();
+        }
+
+        LinkedList<Node> queue = new LinkedList<Node>();
+        Node currNode;
+        queue.add(root);
+
+        while (queue.size() != 0) {
+            currNode = queue.poll();
+            boolean flag=true;
+            for(int i=0;i<dim;i++){
+                if(!((range[i][0]>=currNode.getMbr()[i][0] && range[i][0]<=currNode.getMbr()[i][1])||
+                        (range[i][1]>=currNode.getMbr()[i][0] && range[i][1]<=currNode.getMbr()[i][1]))){
+
+                    flag=false;
+                }
+            }
+            if(flag){
+                if (currNode.getChildren().size() != 0) {
+                    for(int i=0;i<currNode.getChildren().size();i++){
+                        queue.add(currNode.getChildren().get(i));
+                    }
+                } else {
+                    for(int i=0;i<currNode.getRecords().size();i++){
+                        flag=true;
+                        for(int j=0;j<dim;j++){
+                            if(!(currNode.getRecords().get(i).getInfo().get(j)>=range[j][0] &&
+                                    currNode.getRecords().get(i).getInfo().get(j)<=range[j][1])){
+                                flag=false;
+                            }
+                        }
+                        if(flag){
+                            System.out.println(currNode.getRecords().get(i).getLine());
+                        }
+                    }
+                }
+            }
+        }
+        scanner.close();  // Closes the scanner
+    }
+
+    public void kNNQuery(int dim, int knn){
+
+    }
 
     // Construct the IndexFile based on the R-Tree made from function BuildRTree.
 
@@ -39,6 +106,7 @@ public class RTree {
         queue.add(root);
         queueF.add(id);
         Node currNode;
+        int bytes=0;
 
         while (queue.size() != 0) {
             currNode = queue.poll();
