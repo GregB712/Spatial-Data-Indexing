@@ -54,6 +54,7 @@ public class CSVParser {
             coordinates.clear();
 
         }
+        scanner.close();
     }
 
     /**

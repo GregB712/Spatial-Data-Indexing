@@ -77,7 +77,7 @@ public class AppMenu {
                     System.out.print("Give number of nearest neighbors: ");
                     int k_neighbors = scanner.nextInt();
                     // Call KNN
-                    SerialActions serialActions1 = new SerialActions(dim, givenCoor, csvfile, k_neighbors);
+                    SerialActions serialActions1 = new SerialActions(dim, givenCoor, k_neighbors);
                     serialActions1.Knn();
                     givenCoor.clear();
                     break;
@@ -92,7 +92,7 @@ public class AppMenu {
                         givenCoor.add(scanner.nextDouble());
                     }
                     //Call RQ
-                    SerialActions serialActions2 = new SerialActions(dim, givenCoor, csvfile);
+                    SerialActions serialActions2 = new SerialActions(dim, givenCoor);
                     serialActions2.RQ();
                     givenCoor.clear();
                     break;

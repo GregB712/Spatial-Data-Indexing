@@ -3,34 +3,48 @@ package com.company;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class for the Serial Actions of K Nearest Neighbors and Range Queries
+ */
 public class SerialActions {
 
-    private final int dim;
-    private final List<Double> givenCoor;
-    private final String filename;
-    private final int k_neighbors;
+    private final int dim; //number of dimensions given by user
+    private final List<Double> givenCoor; //list of coordinates given by user
+    private final int k_neighbors; //number of neighbors given by user
 
-    SerialActions(int dim, List<Double> givenCoor, String filename, int k_neighbors){
+    /**
+     * Constructor of class SerialActions for K Neighbors
+     * @param dim
+     * @param givenCoor
+     * @param k_neighbors
+     */
+    SerialActions(int dim, List<Double> givenCoor, int k_neighbors){
         this.dim = dim;
-        this.filename = filename;
         this.givenCoor = new ArrayList<>(givenCoor);
         this.k_neighbors = k_neighbors;
     }
 
-    SerialActions(int dim, List<Double> givenCoor, String filename){
+    /**
+     * Constructor of class SerialActions for Range Queries
+     * @param dim
+     * @param givenCoor
+     */
+    SerialActions(int dim, List<Double> givenCoor){
         this.dim = dim;
-        this.filename = filename;
         this.givenCoor = new ArrayList<>(givenCoor);
         this.k_neighbors = 0;
     }
 
-    // K-nn Neighbors Query doing Serial-Searching on the csv datafile. (For comparing purposes)
+    /**
+     * K-nn Neighbors Query doing Serial-Searching on the datafile (For comparing purposes)
+     * @throws Exception
+     */
     public void Knn() throws Exception {
 
-        SerialKNeighbors skn = new SerialKNeighbors(dim, k_neighbors, givenCoor, filename);
+        SerialKNNeighbors skn = new SerialKNNeighbors(dim, k_neighbors, givenCoor);
 
         long startTime = System.nanoTime();
-        skn.Calculate_K_Neighbors();
+        skn.Calculate_KN_Neighbors();
         long endTime = System.nanoTime();
 
         long duration = (endTime - startTime);  //divide by 1000000 to get milliseconds.
@@ -38,10 +52,13 @@ public class SerialActions {
 
     }
 
-    // Range Query doing Serial-Searching on the csv datafile. (For comparing purposes)
+    /**
+     * Range Query doing Serial-Searching on the datafile. (For comparing purposes)
+     * @throws Exception
+     */
     public void RQ() throws Exception {
 
-        SerialRangeQueries srq = new SerialRangeQueries(dim, givenCoor, filename);
+        SerialRangeQueries srq = new SerialRangeQueries(dim, givenCoor);
 
         long startTime = System.nanoTime();
         srq.RangeQuery();

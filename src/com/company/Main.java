@@ -1,7 +1,7 @@
 package com.company;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Main class of the project.
@@ -14,6 +14,15 @@ public class Main {
         CSVParser csvParser = new CSVParser(2, "outfile.csv");
         csvParser.CSVParsing();
         csvParser.writeDataFile();
+
+        /*List<Double> l = new ArrayList<>();
+        l.add(26.5291294);
+        l.add(41.5163899);
+        l.add(26.5323722);
+        l.add(41.5031784);
+        SerialActions serialActions =  new SerialActions(2, l);
+        serialActions.RQ();*/
+
         // Initialise R-Tree and build it
         //RTree rtree = new RTree(2,"test.csv");
         //rtree.BuildRTree();
