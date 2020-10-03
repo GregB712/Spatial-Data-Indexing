@@ -28,6 +28,7 @@ public class CSVParser {
 
     public void CSVParsing() throws FileNotFoundException {
         List<Double> coordinates = new ArrayList<>();
+        List<String> name = new ArrayList<>();
         String string;
         String[] parts;
 
@@ -41,11 +42,15 @@ public class CSVParser {
                 coordinates.add(Double.valueOf(parts[i+1]));
             }
 
-            if (parts.length == dimensions + 2){ //if name exists
-                entries.add(new Entry(parts[0], coordinates, parts[parts.length-1]));
+            if (parts.length > dimensions + 1){ //if name exists
+                for (int i = dimensions+1; i < parts.length; i++) {
+                    name.add(parts[i]+" ");
+                }
+                entries.add(new Entry(parts[0], coordinates, name));
             } else {
                 entries.add(new Entry(parts[0], coordinates));
             }
+            name.clear();
             coordinates.clear();
 
         }
@@ -84,7 +89,7 @@ public class CSVParser {
                 if (totalBytes >= 0) {
                     bytesLeft -= length;
                     lines += 1;
-                } else {                    // if we exceed 32kb, we end this block, write its lines and its total bytes
+                } else {                   // if we exceed 32kb, we end this block, write its lines and its total bytes
                     blocks += 1;
                     block1.append(blocks);
                     block1.append(" ").append(lines);

@@ -1,11 +1,11 @@
-/**
- * Main class of the project.
- */
 package com.company;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 
+/**
+ * Main class of the project.
+ */
 public class Main {
 
     public static void main(String[] args) throws Exception {

@@ -11,7 +11,7 @@ public class Entry {
 
     private final String id;
     private final List<Double> coordinates;
-    private String name;
+    private List<String> name;
 
     /**
      * Constructor of the class Entry
@@ -19,10 +19,10 @@ public class Entry {
      * @param coordinates
      * @param name
      */
-    Entry(String id, List<Double> coordinates, String name){
+    Entry(String id, List<Double> coordinates, List<String> name){
         this.id = id;
         this.coordinates = new ArrayList<>(coordinates);
-        this.name = name;
+        this.name = new ArrayList<>(name);
     }
 
     /**
@@ -50,6 +50,12 @@ public class Entry {
     }
 
     public String getName() {
-        return name;
+        if(name==null){
+            return String.valueOf(name);
+        } else {
+            return name.toString().replace("[", "").
+                    replace(",", "").
+                    replace("]", "");
+        }
     }
 }
