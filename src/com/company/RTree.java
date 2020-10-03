@@ -85,7 +85,131 @@ public class RTree {
     }
 
     public void kNNQuery(int dim, int knn){
+        Scanner scanner = new Scanner(System.in);
+        double[] point = new double[dim];
+        Record[] neighboors = new Record[knn];
+        double[] distances = new double[knn];
+        double maxdist=0;
+        int inserted=0;
 
+        for(int i=0;i<dim;i++){
+            System.out.println("Give Coordinate No." + (i+1));
+            point[i] = scanner.nextDouble();
+        }
+
+        LinkedList<Node> queue = new LinkedList<Node>();
+        Node currNode;
+        int childSelected;
+        queue.add(root);
+
+        while (queue.size() != 0) {
+            currNode = queue.poll();
+            childSelected=0;
+            double mindist = Double.MAX_VALUE;
+
+            if (currNode.getChildren().size() == 0) {
+                for (int i=0; i<currNode.getRecords().size();i++){
+                    if(inserted<knn){
+                        neighboors[inserted]=currNode.getRecords().get(i);
+                        distances[inserted]= euclideanDist(point,currNode.getRecords().get(i).getInfo());
+                        inserted++;
+                        if(distances[inserted-1]<maxdist){
+                            maxdist=distances[inserted-1];
+                        }
+                        if(inserted==knn){
+                            parallelBubbleSort(distances,neighboors);
+                        }
+                    }else{
+                        boolean flag=true;
+                        int pos=knn;
+                        for(int j=knn-1;j>=0 && flag;j--){
+                            if(euclideanDist(point,currNode.getRecords().get(i).getInfo()) < distances[j]){
+                                pos=j;
+                            }else{
+                                flag=false;
+                            }
+                        }
+                        if(pos!=knn){
+                            distances[knn-1] = euclideanDist(point,currNode.getRecords().get(i).getInfo());
+                            neighboors[knn-1] = currNode.getRecords().get(i);
+                            if(distances[knn-1]<maxdist){
+                                maxdist=distances[knn-1];
+                            }
+                            parallelBubbleSort(distances,neighboors);
+                        }
+                    }
+                }
+            }else {
+                for (int i = 0; i < currNode.getChildren().size();i++) {
+                    double nodeDist = MINDIST(point, currNode.getChildren().get(i).getMbr());
+                    if (nodeDist < mindist) {
+                        mindist = nodeDist;
+                        childSelected = i;
+                    }
+                }
+                for (int i =0; i < currNode.getChildren().size();i++) {
+                    if(i!=childSelected){
+                        queue.add(currNode.getChildren().get(i));
+                    }
+                }
+                queue.add(currNode.getChildren().get(childSelected));
+            }
+        }
+        for(int i=0;i<knn;i++){
+            for(int j=0;j<dim;j++) {
+                System.out.print(neighboors[i].getInfo().get(j) + " ");
+            }
+            System.out.println();
+        }
+        scanner.close();  // Closes the scanner
+    }
+
+    static void parallelBubbleSort(double[] arr, Record[] arr2) {
+        int n = arr.length;
+        double temp = 0;
+        Record temp2 = null;
+        for (int i = 0; i < n; i++) {
+            for (int j = 1; j < (n - i); j++) {
+                if (arr[j - 1] > arr[j]) {
+                    //swap elements
+                    temp = arr[j - 1];
+                    arr[j - 1] = arr[j];
+                    arr[j] = temp;
+                    temp2 = arr2[j - 1];
+                    arr2[j - 1] = arr2[j];
+                    arr2[j] = temp2;
+                }
+            }
+        }
+    }
+
+        public double euclideanDist(double[] point, List<Double> record){
+        double dist = 0 ;
+        for(int i=0;i<dim;i++){
+            dist += Math.pow(point[i]-record.get(i),2);
+        }
+        dist = Math.sqrt(dist);
+        return dist;
+    }
+
+    public double MINDIST(double[] point, double[][] mbr){
+        double rj, pj;
+        double sum = 0;
+
+        for(int i=0;i<dim;i++){
+            pj = point[i];
+            if(pj<mbr[i][0]) {
+                rj = mbr[i][0];
+            }else if(pj>mbr[i][1]){
+                rj = mbr[i][1];
+            }else{
+                rj = pj;
+            }
+
+            sum+=Math.pow(Math.abs(pj-rj),2);
+        }
+        sum = Math.sqrt(sum);
+        return sum;
     }
 
     // Construct the IndexFile based on the R-Tree made from function BuildRTree.
