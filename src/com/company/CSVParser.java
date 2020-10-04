@@ -76,7 +76,7 @@ public class CSVParser {
             int bytesLeft=32768;
             int totalBytes;
             int blocks = 1;
-            int lines = 0;
+            int lines = 1;
             StringBuilder block1 = new StringBuilder();
 
             //Iterate map entries.
@@ -95,7 +95,7 @@ public class CSVParser {
                     block1.append(blocks);
                     block1.append(" ").append(lines);
                     block1.append(" ").append(32768 - bytesLeft).append("\n");
-                    lines = 0;
+                    lines = 1;
                     bytesLeft = 32768 - length;
                 }
             }
