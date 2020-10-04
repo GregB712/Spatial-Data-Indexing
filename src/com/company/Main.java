@@ -28,8 +28,8 @@ public class Main {
         rtree.BuildRTree();
         rtree.WriteIndexFile();
 
-        /** Queries for R-tree  **/
-        //rtree.InsertNewEntry(2);          // (DONE!) Inserts new entry into the tree
+        /** Queries for R-tree  **/         // TODO: WE NEED TO RUN THOSE SEPERATELY DUE TO STREAM PROBLEMS
+        rtree.InsertNewEntry(2);       // (DONE!) Inserts new entry into the tree    //CSV AND DATAFILE SHOULD HAVE NO BLANK LINE AT THE END
 
         //rtree.RangeQuery(2);              // (DONE!) Prints the old_datafile line for every entry that belongs to the query
 

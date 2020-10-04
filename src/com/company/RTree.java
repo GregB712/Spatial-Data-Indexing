@@ -20,7 +20,7 @@ public class RTree {
         this.root = new Node(dim,null);
     }
 
-    public void InsertNewEntry(int dim) throws FileNotFoundException {      // TODO: INSERT ENTRY IN DATAFILE FIRST
+    public void InsertNewEntry(int dim) throws IOException {      // TODO: INSERT ENTRY IN DATAFILE FIRST
         Scanner scanner = new Scanner(System.in);
         List<Double> coords = new ArrayList<>();
         System.out.println("Give Entry's ID");
@@ -29,10 +29,38 @@ public class RTree {
             System.out.println("Give Coordinate No." + (i+1));
             coords.add(scanner.nextDouble());
         }
-        Record entry = new Record(id,coords,0, 0);     // TODO: SEE IF WE STORE LINE, BYTES OR BLOCK OF DATAFILE
-        Insert(entry, root);
-        this.WriteIndexFile();
-        scanner.close();  // Closes the scanner
+
+//        File file = new File("outfile.csv");
+//        BufferedWriter bf = new BufferedWriter(new FileWriter(file,true));
+//        bf.write(id + " ");
+//        for(int i=0;i<dim;i++){
+//            bf.write(coords.get(i) + " ");
+//        }
+//        bf.newLine();
+//        bf.close();
+
+        FileWriter csvWriter = new FileWriter("outfile.csv",true);
+        csvWriter.append('\n');
+        csvWriter.append(id);
+        csvWriter.append(" ");
+        for(int i=0;i<dim;i++){
+            csvWriter.append(coords.get(i).toString());
+            csvWriter.append(' ');
+        }
+        csvWriter.close();
+
+
+        CSVParser csvParser = new CSVParser(2, "outfile.csv");
+        csvParser.CSVParsing();
+        csvParser.writeDataFile();
+        this.BuildRTree();
+
+
+
+//        Record entry = new Record(id,coords,0, 0);     // TODO: SEE IF WE STORE LINE, BYTES OR BLOCK OF DATAFILE
+//        Insert(entry, root);
+//        this.WriteIndexFile();
+//        scanner.close();  // Closes the scanner
     }
 
     public void RangeQuery(int dim){

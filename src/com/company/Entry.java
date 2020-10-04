@@ -55,7 +55,8 @@ public class Entry {
         } else {
             return name.toString().replace("[", "").
                     replace(",", "").
-                    replace("]", "");
+                    replace("]", "").
+                    replace("  "," ");
         }
     }
 }
