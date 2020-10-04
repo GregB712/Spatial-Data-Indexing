@@ -20,7 +20,7 @@ public class RTree {
         this.root = new Node(dim,null);
     }
 
-    public void InsertNewEntry(int dim) throws FileNotFoundException {
+    public void InsertNewEntry(int dim) throws FileNotFoundException {      // TODO: INSERT ENTRY IN DATAFILE FIRST
         Scanner scanner = new Scanner(System.in);
         List<Double> coords = new ArrayList<>();
         System.out.println("Give Entry's ID");
@@ -29,7 +29,7 @@ public class RTree {
             System.out.println("Give Coordinate No." + (i+1));
             coords.add(scanner.nextDouble());
         }
-        Record entry = new Record(id,coords,0);     // TODO: SEE IF WE STORE LINE, BYTES OR BLOCK OF DATAFILE
+        Record entry = new Record(id,coords,0, 0);     // TODO: SEE IF WE STORE LINE, BYTES OR BLOCK OF DATAFILE
         Insert(entry, root);
         this.WriteIndexFile();
         scanner.close();  // Closes the scanner
@@ -287,34 +287,43 @@ public class RTree {
     // Build R-Tree
 
     public void BuildRTree() throws FileNotFoundException {
-
         // Parsing a CSV file into Scanner class constructor
-        Scanner sc = new Scanner(new File(csvfile));
-        int line = 0;
-
+        Scanner scanner = new Scanner(new File("datafile"));
+        String string;
+        String[] parts;
+        List<Double> coordinates;
+        List<String> metadata = new ArrayList<>();
+        int last_line_hack = 0;
+        // Create a list with the number of lines in each block from the metadata
+        metadata.add(scanner.nextLine()); // first element of the list the lines of the metadata
+        for (int i = 0; i < Integer.parseInt(metadata.get(0))-1; i++) {
+            string = scanner.nextLine();
+            parts = string.split("\\s+");
+            metadata.add(parts[1]);
+        }
+        int line = Integer.parseInt(metadata.get(0)); //current line of file (for future usage)
         // Loop through the CSVFile lines to get id and coordinates based on dimension parameter
         // We need the following csv format:
         // 1st element = id
         // Rest dimension elements (e.g. 2) = coordinates
-        while (sc.hasNext()){
-            line++;
-            String string = sc.nextLine();
-            String[] parts = string.split("\\s+");
-
-            String id = parts[0];
-            List<Double> coordinates = new ArrayList<>();
-
-            for (int i = 0; i < dim; i++) {
-                coordinates.add(Double.valueOf(parts[i+1]));
+        for (int i = 2; i < Integer.parseInt(metadata.get(0)); i++) {
+            if (i==Integer.parseInt(metadata.get(0))-1){
+                last_line_hack = 1;
             }
-
-            Record entry = new Record(id,coordinates,line);
-
-            Insert(entry, root);
+            for (int j = 0; j < Integer.parseInt(metadata.get(i))-last_line_hack; j++) {
+                string = scanner.nextLine();
+                parts = string.split("\\s+");
+                coordinates = new ArrayList<>();
+                for (int q = 0; q < dim; q++) {
+                    coordinates.add(Double.valueOf(parts[q+1]));
+                }
+                int temp = j+1;
+                //System.out.println(parts[0] + " " + coordinates + " " + temp + " " + i);
+                Insert(new Record(parts[0],coordinates,j+1, i), root); // j is line inside block, i is blockID
+                //coordinates.clear();
+            }
         }
-
-        sc.close();  // Closes the scanner
-
+        scanner.close();  // Closes the scanner
     }
 
     // Function to insert a new entry into the R*Tree
@@ -965,5 +974,6 @@ public class RTree {
     }
 
 }
+
 
 

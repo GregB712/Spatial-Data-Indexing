@@ -24,16 +24,16 @@ public class Main {
         serialActions.RQ();*/
 
         // Initialise R-Tree and build it
-        //RTree rtree = new RTree(2,"test.csv");
-        //rtree.BuildRTree();
-        //rtree.WriteIndexFile();
+        RTree rtree = new RTree(2,"outfile.csv");
+        rtree.BuildRTree();
+        rtree.WriteIndexFile();
 
         /** Queries for R-tree  **/
         //rtree.InsertNewEntry(2);          // (DONE!) Inserts new entry into the tree
 
         //rtree.RangeQuery(2);              // (DONE!) Prints the old_datafile line for every entry that belongs to the query
 
-        //rtree.kNNQuery(2,3);              // (NOT DONE!) TODO
+        //rtree.kNNQuery(2,5);              // (DONE!) Prints the info of the knn query
 
 
         //AppMenu appMenu = new AppMenu();

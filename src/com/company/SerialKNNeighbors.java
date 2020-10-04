@@ -50,7 +50,7 @@ public class SerialKNNeighbors {
             }
             //finding the distance between a record from datafile and the given point
             for (int i = 0; i < dim; i++) {
-                dist += Math.pow(2, dimensions.get(i)-givenCoor.get(i));
+                dist += Math.pow(dimensions.get(i)-givenCoor.get(i),2);
             }
             dist = Math.sqrt(dist);
 
