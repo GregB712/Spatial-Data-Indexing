@@ -11,8 +11,7 @@ public class AppMenu {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("1) Build R* Tree from csv file");
-        System.out.println("2) Load R* Tree from index file");
-        System.out.println("3) Exit");
+        System.out.println("2) Exit");
 
         String option;
         String csvfile = "";
@@ -30,79 +29,77 @@ public class AppMenu {
                     csvfile = scanner.next();
                     break;
                 case "2":
-                    System.out.print("Name of index file: ");
-                    String indexfile = scanner.next();
-                    //dim = something from index file
-                    break;
-                case "3":
                     System.out.println("Bye Bye!");
                     return;
             }
-        } while (!option.equals("1") && !option.equals("2"));
+        } while (!option.equals("1"));
 
-        // Build R* Tree
+        //Create Datafile from csv
+        CSVParser csvParser = new CSVParser(2, csvfile);
+        csvParser.CSVParsing();
+        csvParser.writeDataFile();
+
+        // Initialise R-Tree and build it
+        RTree rtree = new RTree(2,csvfile);
+        rtree.BuildRTree();
+        rtree.WriteIndexFile();
+
         System.out.println();
         System.out.println("R* Tree is ready!");
         System.out.println();
 
         String innerOption;
-        List<Double> givenCoor = new ArrayList<Double>();
+        List<Double> givenCoor = new ArrayList<>();
 
-        do {
-            System.out.println("What do you want to do?");
-            System.out.println("1) Insert point");
-            System.out.println("2) Search point");
-            System.out.println("3) Find k nearest neighbors in a point");
-            System.out.println("4) Find all the points inside an area");
-            System.out.println("5) Exit");
-            System.out.print("Choose one of the above: ");
+        System.out.println("What do you want to do?");
+        System.out.println("1) Insert point");
+        System.out.println("2) Find k nearest neighbors in a point");
+        System.out.println("3) Find all the points inside an area");
+        System.out.println("4) Exit");
+        System.out.print("Choose one of the above: ");
 
-            innerOption = scanner.next();
+        innerOption = scanner.next();
 
-            switch (innerOption) {
-                case "1":
-                    System.out.println("---Insert---");
-                    this.typeCoordinates(dim, scanner, givenCoor);
-                    //Insert Record
-                    break;
-                case "2":
-                    System.out.println("---Search---");
-                    this.typeCoordinates(dim, scanner, givenCoor);
-                    //Search Record
-                    //If found return true else return false
-                    break;
-                case "3":
-                    System.out.println("---KNN---");
-                    this.typeCoordinates(dim, scanner, givenCoor);
-                    System.out.print("Give number of nearest neighbors: ");
-                    int k_neighbors = scanner.nextInt();
-                    // Call KNN
-                    SerialActions serialActions1 = new SerialActions(dim, givenCoor, k_neighbors);
-                    serialActions1.Knn();
-                    givenCoor.clear();
-                    break;
-                case "4": //TODO Give more than 2 coordinates
-                    System.out.println("---Range Query---");
-                    System.out.print("Give 1st Coordinates: ");
-                    for (int i = 0; i < dim; i++) {
-                        givenCoor.add(scanner.nextDouble());
-                    }
-                    System.out.print("Give 2nd Coordinates: ");
-                    for (int i = 0; i < dim; i++) {
-                        givenCoor.add(scanner.nextDouble());
-                    }
-                    //Call RQ
-                    SerialActions serialActions2 = new SerialActions(dim, givenCoor);
-                    serialActions2.RQ();
-                    givenCoor.clear();
-                    break;
-                case "5":
-                    System.out.println("Bye Bye!");
-                    return;
-            }
-            System.out.println("_________________________________________________");
-        } while (true);
-
+        switch (innerOption) {
+            case "1":
+                System.out.println("---Insert---");
+                System.out.print("Give ID: ");
+                String id = scanner.next();
+                this.typeCoordinates(dim, scanner, givenCoor);
+                //Insert Record
+                rtree.InsertNewEntry(dim, givenCoor, id);
+                System.out.println("Given Point Inserted");
+                break;
+            case "2":
+                System.out.println("---KNN---");
+                this.typeCoordinates(dim, scanner, givenCoor);
+                System.out.print("Give number of nearest neighbors: ");
+                int k_neighbors = scanner.nextInt();
+                // Call KNN
+                rtree.kNNQuery(dim, k_neighbors, givenCoor);
+                SerialActions serialActions1 = new SerialActions(dim, givenCoor, k_neighbors);
+                serialActions1.Knn();
+                break;
+            case "3":
+                System.out.println("---Range Query---");
+                System.out.print("Give 1st Coordinates: ");
+                for (int i = 0; i < dim; i++) {
+                    givenCoor.add(scanner.nextDouble());
+                }
+                System.out.print("Give 2nd Coordinates: ");
+                for (int i = 0; i < dim; i++) {
+                    givenCoor.add(scanner.nextDouble());
+                }
+                //Call RQ
+                rtree.RangeQuery(dim, givenCoor);
+                SerialActions serialActions2 = new SerialActions(dim, givenCoor);
+                serialActions2.RQ();
+                break;
+            case "4":
+                System.out.println("Bye Bye!");
+                return;
+        }
+        System.out.println("_________________________________________________");
     }
 
     private void typeCoordinates(int dim, Scanner scanner, List<Double> givenCoor){

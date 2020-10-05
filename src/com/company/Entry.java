@@ -56,7 +56,7 @@ public class Entry {
             return name.toString().replace("[", "").
                     replace(",", "").
                     replace("]", "").
-                    replace("  "," ");
+                    replace("  ", " ");
         }
     }
 }

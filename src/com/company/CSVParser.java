@@ -84,7 +84,7 @@ public class CSVParser {
 
             for (Entry entry : entries) {
                 String tempString = entry.getId() + " " + entry.getCoordinates() + " " + entry.getName();
-                length = tempString.getBytes(StandardCharsets.UTF_8).length;
+                length = tempString.getBytes(StandardCharsets.UTF_8).length + 2;
                 totalBytes = bytesLeft - length;
 
                 if (totalBytes >= 0) {
@@ -109,7 +109,7 @@ public class CSVParser {
             // Here we calculate the bytes for the first metadata-block and then write the metadata in the file.
 
             String tempString = 1 + " " + blocks + " ";
-            int block1bytes = tempString.getBytes().length + block1.toString().getBytes().length;
+            int block1bytes = tempString.getBytes().length + block1.toString().getBytes().length + 2;
             // The " - (blocks)" is to eliminate all "\n" characters from byte counting.
             block1bytes = block1bytes + String.valueOf(block1bytes).getBytes().length - (blocks)
                     + String.valueOf(blocks+1).getBytes().length;
@@ -119,7 +119,7 @@ public class CSVParser {
             finalBf.newLine();
             finalBf.write(block1.toString());
 
-            // Second loop is to write the actual node information in the old_datafile
+            // Second loop is to write the actual node information in the datafile
 
             for (Entry entry : entries) {
 

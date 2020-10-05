@@ -1,5 +1,6 @@
 package com.company;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.io.*;
 
@@ -12,6 +13,9 @@ public class RTree {
     private final String csvfile;
     private Node root;
 
+    private List<Integer> block_bytes = new ArrayList<>();
+    private List<Integer> block_lines = new ArrayList<>();
+
     RTree(int dim, String csvfile) throws FileNotFoundException {
         this.dim = dim;
         this.csvfile = csvfile;
@@ -20,58 +24,95 @@ public class RTree {
         this.root = new Node(dim,null);
     }
 
-    public void InsertNewEntry(int dim) throws IOException {      // TODO: INSERT ENTRY IN DATAFILE FIRST
-        Scanner scanner = new Scanner(System.in);
-        List<Double> coords = new ArrayList<>();
-        System.out.println("Give Entry's ID");
-        String id = scanner.next();
-        for(int i=0;i<dim;i++){
-            System.out.println("Give Coordinate No." + (i+1));
-            coords.add(scanner.nextDouble());
+    private void Get_Metadata() throws IOException {
+        FileInputStream fis = new FileInputStream(new File("datafile"));
+
+        //Construct BufferedReader from InputStreamReader
+        BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+
+        String number_of_blocks = br.readLine();
+        //System.out.println(String.valueOf(number_of_blocks).getBytes(StandardCharsets.UTF_8).length);
+        block_bytes.add(Integer.parseInt(number_of_blocks));
+        block_lines.add(1);
+        String string;
+        String[] parts;
+
+        //System.out.println(br.readLine()); // number of blocks + 1
+
+        for (int i = 0; i < Integer.parseInt(number_of_blocks)-1; i++) {
+            string = br.readLine();
+
+            //System.out.println(String.valueOf(string).getBytes(StandardCharsets.UTF_8).length);
+            parts = string.split("\\s+");
+
+            block_lines.add(Integer.parseInt(parts[1]));
+            block_bytes.add(Integer.parseInt(parts[2]));
         }
 
-//        File file = new File("outfile.csv");
-//        BufferedWriter bf = new BufferedWriter(new FileWriter(file,true));
-//        bf.write(id + " ");
-//        for(int i=0;i<dim;i++){
-//            bf.write(coords.get(i) + " ");
-//        }
-//        bf.newLine();
-//        bf.close();
+        br.close();
+    }
 
-        FileWriter csvWriter = new FileWriter("outfile.csv",true);
+    public void Results_Datafile(int line, int block) throws IOException {
+
+        FileInputStream fis = new FileInputStream(new File("datafile"));
+
+        //Construct BufferedReader from InputStreamReader
+        BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+
+        int skip = String.valueOf(block_bytes.get(0)).getBytes(StandardCharsets.UTF_8).length;
+        int skip_lines = 0;
+        for (int i = 1; i < block; i++) {
+            skip += block_bytes.get(i);
+            skip_lines += block_lines.get(i);
+        }
+
+        br.skip(skip);
+
+        System.out.println("SKIPPED BYTES: " + (skip));
+        System.out.println("SKIPPED LINES: " + (skip_lines));
+
+        for (int i = 0; i < line+2; i++) {
+            br.readLine();
+        }
+        System.out.println(br.readLine());
+    }
+
+    public void InsertNewEntry(int dim, List<Double> givenCoor, String id) throws IOException {
+
+        FileWriter csvWriter = new FileWriter(csvfile,true);
         csvWriter.append('\n');
         csvWriter.append(id);
         csvWriter.append(" ");
         for(int i=0;i<dim;i++){
-            csvWriter.append(coords.get(i).toString());
+            csvWriter.append(givenCoor.get(i).toString());
             csvWriter.append(' ');
         }
         csvWriter.close();
 
-
-        CSVParser csvParser = new CSVParser(2, "outfile.csv");
+        CSVParser csvParser = new CSVParser(dim, csvfile);
         csvParser.CSVParsing();
         csvParser.writeDataFile();
         this.BuildRTree();
-
-
-
-//        Record entry = new Record(id,coords,0, 0);     // TODO: SEE IF WE STORE LINE, BYTES OR BLOCK OF DATAFILE
-//        Insert(entry, root);
-//        this.WriteIndexFile();
-//        scanner.close();  // Closes the scanner
     }
 
-    public void RangeQuery(int dim){
-        Scanner scanner = new Scanner(System.in);
-        double[][] range = new double[dim][2];;
+    public void RangeQuery(int dim, List<Double> givenCoor){
 
-        for(int i=0;i<dim;i++){
-            System.out.println("Give Coordinate No." + (i+1) + "'s Lower Bound ");
-            range[i][0] = scanner.nextDouble();
-            System.out.println("Give Coordinate No." + (i+1) + "'s Upper Bound ");
-            range[i][1] = scanner.nextDouble();
+        Scanner scanner = new Scanner(System.in);
+        double[][] range = new double[dim][2];
+        List<Record> results = new ArrayList<>();
+
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < dim; j++) {
+                range[j][i] = givenCoor.get(i*dim+j);
+            }
+        }
+
+        for (int i = 0; i < dim; i++) {
+            if(range[i][0]>range[i][1]){
+                double temp = range[i][0];
+                range[i][0] = range[i][1];
+                range[i][1] = temp;
+            }
         }
 
         LinkedList<Node> queue = new LinkedList<Node>();
@@ -82,9 +123,7 @@ public class RTree {
             currNode = queue.poll();
             boolean flag=true;
             for(int i=0;i<dim;i++){
-                if(!((range[i][0]>=currNode.getMbr()[i][0] && range[i][0]<=currNode.getMbr()[i][1])||
-                        (range[i][1]>=currNode.getMbr()[i][0] && range[i][1]<=currNode.getMbr()[i][1]))){
-
+                if(Calculate_OverlapValue(range, currNode.getMbr())==0){
                     flag=false;
                 }
             }
@@ -103,26 +142,28 @@ public class RTree {
                             }
                         }
                         if(flag){
-                            System.out.println(currNode.getRecords().get(i).getLine());
+                            results.add(currNode.getRecords().get(i));
                         }
                     }
                 }
             }
         }
         scanner.close();  // Closes the scanner
+        for (int i = 0; i < results.size(); i++) {
+            System.out.println(results.get(i).getLine() + " " + results.get(i).getBlockID());
+        }
     }
 
-    public void kNNQuery(int dim, int knn){
+    public void kNNQuery(int dim, int knn, List<Double> givenCoor){
         Scanner scanner = new Scanner(System.in);
         double[] point = new double[dim];
-        Record[] neighboors = new Record[knn];
+        Record[] results = new Record[knn];
         double[] distances = new double[knn];
         double maxdist=0;
         int inserted=0;
 
         for(int i=0;i<dim;i++){
-            System.out.println("Give Coordinate No." + (i+1));
-            point[i] = scanner.nextDouble();
+            point[i] = givenCoor.get(i);
         }
 
         LinkedList<Node> queue = new LinkedList<Node>();
@@ -138,14 +179,14 @@ public class RTree {
             if (currNode.getChildren().size() == 0) {
                 for (int i=0; i<currNode.getRecords().size();i++){
                     if(inserted<knn){
-                        neighboors[inserted]=currNode.getRecords().get(i);
+                        results[inserted]=currNode.getRecords().get(i);
                         distances[inserted]= euclideanDist(point,currNode.getRecords().get(i).getInfo());
                         inserted++;
                         if(distances[inserted-1]<maxdist){
                             maxdist=distances[inserted-1];
                         }
                         if(inserted==knn){
-                            parallelBubbleSort(distances,neighboors);
+                            parallelBubbleSort(distances,results);
                         }
                     }else{
                         boolean flag=true;
@@ -159,11 +200,11 @@ public class RTree {
                         }
                         if(pos!=knn){
                             distances[knn-1] = euclideanDist(point,currNode.getRecords().get(i).getInfo());
-                            neighboors[knn-1] = currNode.getRecords().get(i);
+                            results[knn-1] = currNode.getRecords().get(i);
                             if(distances[knn-1]<maxdist){
                                 maxdist=distances[knn-1];
                             }
-                            parallelBubbleSort(distances,neighboors);
+                            parallelBubbleSort(distances,results);
                         }
                     }
                 }
@@ -185,9 +226,12 @@ public class RTree {
         }
         for(int i=0;i<knn;i++){
             for(int j=0;j<dim;j++) {
-                System.out.print(neighboors[i].getInfo().get(j) + " ");
+                System.out.print(results[i].getInfo().get(j) + " ");
             }
             System.out.println();
+        }
+        for (int i = 0; i < knn; i++) {
+            System.out.println(results[i].getLine() + " " + results[i].getBlockID());
         }
         scanner.close();  // Closes the scanner
     }
@@ -314,7 +358,7 @@ public class RTree {
 
     // Build R-Tree
 
-    public void BuildRTree() throws FileNotFoundException {
+    public void BuildRTree() throws IOException {
         // Parsing a CSV file into Scanner class constructor
         Scanner scanner = new Scanner(new File("datafile"));
         String string;
@@ -352,6 +396,7 @@ public class RTree {
             }
         }
         scanner.close();  // Closes the scanner
+        Get_Metadata();
     }
 
     // Function to insert a new entry into the R*Tree
@@ -1000,8 +1045,4 @@ public class RTree {
         //System.out.println(sum);
         return sum;
     }
-
 }
-
-
-
