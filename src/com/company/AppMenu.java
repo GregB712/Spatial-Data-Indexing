@@ -76,8 +76,13 @@ public class AppMenu {
                 System.out.print("Give number of nearest neighbors: ");
                 int k_neighbors = scanner.nextInt();
                 // Call KNN
+
+                System.out.println("R* Tree K Nearest Neighbors:");
                 rtree.kNNQuery(dim, k_neighbors, givenCoor);
+
                 System.out.println();
+
+                System.out.println("Serial K Nearest Neighbors:");
                 SerialActions serialActions1 = new SerialActions(dim, givenCoor, k_neighbors);
                 serialActions1.Knn();
                 break;
@@ -92,8 +97,12 @@ public class AppMenu {
                     givenCoor.add(scanner.nextDouble());
                 }
                 //Call RQ
+                System.out.println("R* Tree Range Query Results:");
                 rtree.RangeQuery(dim, givenCoor);
+
                 System.out.println();
+
+                System.out.println("Serial Range Query Results:");
                 SerialActions serialActions2 = new SerialActions(dim, givenCoor);
                 serialActions2.RQ();
                 break;
@@ -107,7 +116,7 @@ public class AppMenu {
     private void typeCoordinates(int dim, Scanner scanner, List<Double> givenCoor){
         System.out.print("Give Coordinates: ");
         for (int i = 0; i < dim; i++) {
-            givenCoor.add(scanner.nextDouble());
+            givenCoor.add(Double.parseDouble(scanner.next()));
         }
     }
 

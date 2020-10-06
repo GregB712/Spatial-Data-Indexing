@@ -82,7 +82,9 @@ public class RTree {
         this.BuildRTree();
     }
 
-    public void RangeQuery(int dim, List<Double> givenCoor) throws IOException {
+    public void RangeQuery(int dim, List<Double> givenCoor) {
+
+        long startTime = System.nanoTime();
 
         Scanner scanner = new Scanner(System.in);
         double[][] range = new double[dim][2];
@@ -141,13 +143,20 @@ public class RTree {
             }
         }
         scanner.close();  // Closes the scanner
+        long endTime = System.nanoTime();
+
+        long duration = (endTime - startTime);  //divide by 1000000 to get milliseconds.
+
         for (int i = 0; i < results.size(); i++) {
-            System.out.println(results.get(i).getLine() + " " + results.get(i).getBlockID());
+            //System.out.println(results.get(i).getLine() + " " + results.get(i).getBlockID());
             Results_Datafile(results.get(i).getLine(), results.get(i).getBlockID());
         }
+        System.out.println("R* Tree RangeQueries: " + duration/1000000 + "ms");
     }
 
-    public void kNNQuery(int dim, int knn, List<Double> givenCoor) throws IOException {
+    public void kNNQuery(int dim, int knn, List<Double> givenCoor) {
+        long startTime = System.nanoTime();
+
         Scanner scanner = new Scanner(System.in);
         double[] point = new double[dim];
         Record[] results = new Record[knn];
@@ -217,17 +226,21 @@ public class RTree {
                 queue.add(currNode.getChildren().get(childSelected));
             }
         }
-        for(int i=0;i<knn;i++){
-            for(int j=0;j<dim;j++) {
-                System.out.print(results[i].getInfo().get(j) + " ");
-            }
-            System.out.println();
-        }
+//        for(int i=0;i<knn;i++){
+//            for(int j=0;j<dim;j++) {
+//                System.out.print(results[i].getInfo().get(j) + " ");
+//            }
+//            System.out.println();
+//        }
+        long endTime = System.nanoTime();
+
+        long duration = (endTime - startTime);  //divide by 1000000 to get milliseconds.
         for (int i = 0; i < knn; i++) {
-            System.out.println();
-            System.out.println(results[i].getLine() + " " + results[i].getBlockID());
+            //System.out.println();
+            //System.out.println(results[i].getLine() + " " + results[i].getBlockID());
             Results_Datafile(results[i].getLine(), results[i].getBlockID());
         }
+        System.out.println("R* Tree KNN: " + duration/1000000 + "ms");
         scanner.close();  // Closes the scanner
     }
 
