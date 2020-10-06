@@ -77,6 +77,7 @@ public class AppMenu {
                 int k_neighbors = scanner.nextInt();
                 // Call KNN
                 rtree.kNNQuery(dim, k_neighbors, givenCoor);
+                System.out.println();
                 SerialActions serialActions1 = new SerialActions(dim, givenCoor, k_neighbors);
                 serialActions1.Knn();
                 break;

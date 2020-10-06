@@ -60,7 +60,7 @@ public class RTree {
         BufferedReader br = new BufferedReader(new InputStreamReader(fis));
 
         int skip = String.valueOf(block_bytes.get(0)).getBytes(StandardCharsets.UTF_8).length;
-        int skip_lines = 0;
+        int skip_lines = 1;
         for (int i = 1; i < block; i++) {
             skip += block_bytes.get(i);
             skip_lines += block_lines.get(i);
@@ -69,9 +69,10 @@ public class RTree {
         br.skip(skip);
 
         System.out.println("SKIPPED BYTES: " + (skip));
-        System.out.println("SKIPPED LINES: " + (skip_lines));
+        System.out.println("SKIPPED LINES: " + (skip_lines + line -1));
+        //System.out.println(line-1);
 
-        for (int i = 0; i < line+2; i++) {
+        for (int i = 0; i < line-1; i++) {
             br.readLine();
         }
         System.out.println(br.readLine());
@@ -154,7 +155,7 @@ public class RTree {
         }
     }
 
-    public void kNNQuery(int dim, int knn, List<Double> givenCoor){
+    public void kNNQuery(int dim, int knn, List<Double> givenCoor) throws IOException {
         Scanner scanner = new Scanner(System.in);
         double[] point = new double[dim];
         Record[] results = new Record[knn];
@@ -231,7 +232,9 @@ public class RTree {
             System.out.println();
         }
         for (int i = 0; i < knn; i++) {
+            System.out.println();
             System.out.println(results[i].getLine() + " " + results[i].getBlockID());
+            Results_Datafile(results[i].getLine(), results[i].getBlockID());
         }
         scanner.close();  // Closes the scanner
     }

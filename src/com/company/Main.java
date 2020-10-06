@@ -14,15 +14,15 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        //AppMenu appMenu = new AppMenu();
-        //appMenu.invokeMenu();
+        AppMenu appMenu = new AppMenu();
+        appMenu.invokeMenu();
 
         // Initialise R-Tree and build it
-        RTree rtree = new RTree(2,"outfile.csv");
-        rtree.BuildRTree();
-        rtree.WriteIndexFile();
+        //RTree rtree = new RTree(2,"outfile.csv");
+        //rtree.BuildRTree();
+        //rtree.WriteIndexFile();
 
-        rtree.Results_Datafile(5,10);
+        //rtree.Results_Datafile(5,10);
 
         /*FileInputStream fis = new FileInputStream(new File("datafile"));
 
