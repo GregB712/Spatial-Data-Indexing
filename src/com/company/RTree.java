@@ -1,6 +1,8 @@
 package com.company;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.io.*;
 
@@ -15,6 +17,7 @@ public class RTree {
 
     private List<Integer> block_bytes = new ArrayList<>();
     private List<Integer> block_lines = new ArrayList<>();
+    private List<String> lines = new ArrayList<>();
 
     RTree(int dim, String csvfile) throws FileNotFoundException {
         this.dim = dim;
@@ -31,51 +34,34 @@ public class RTree {
         BufferedReader br = new BufferedReader(new InputStreamReader(fis));
 
         String number_of_blocks = br.readLine();
-        //System.out.println(String.valueOf(number_of_blocks).getBytes(StandardCharsets.UTF_8).length);
+
         block_bytes.add(Integer.parseInt(number_of_blocks));
         block_lines.add(1);
         String string;
         String[] parts;
 
-        //System.out.println(br.readLine()); // number of blocks + 1
-
         for (int i = 0; i < Integer.parseInt(number_of_blocks)-1; i++) {
             string = br.readLine();
 
-            //System.out.println(String.valueOf(string).getBytes(StandardCharsets.UTF_8).length);
             parts = string.split("\\s+");
 
             block_lines.add(Integer.parseInt(parts[1]));
             block_bytes.add(Integer.parseInt(parts[2]));
         }
 
+        lines = Files.readAllLines(Paths.get("datafile"));
+
         br.close();
     }
 
-    public void Results_Datafile(int line, int block) throws IOException {
+    public void Results_Datafile(int line, int block) {
 
-        FileInputStream fis = new FileInputStream(new File("datafile"));
-
-        //Construct BufferedReader from InputStreamReader
-        BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-
-        int skip = String.valueOf(block_bytes.get(0)).getBytes(StandardCharsets.UTF_8).length;
         int skip_lines = 1;
         for (int i = 1; i < block; i++) {
-            skip += block_bytes.get(i);
             skip_lines += block_lines.get(i);
         }
 
-        br.skip(skip);
-
-        System.out.println("SKIPPED BYTES: " + (skip));
-        System.out.println("SKIPPED LINES: " + (skip_lines + line -1));
-        //System.out.println(line-1);
-
-        for (int i = 0; i < line-1; i++) {
-            br.readLine();
-        }
-        System.out.println(br.readLine());
+        System.out.println(lines.get(skip_lines + line-1));
     }
 
     public void InsertNewEntry(int dim, List<Double> givenCoor, String id) throws IOException {
@@ -96,7 +82,7 @@ public class RTree {
         this.BuildRTree();
     }
 
-    public void RangeQuery(int dim, List<Double> givenCoor){
+    public void RangeQuery(int dim, List<Double> givenCoor) throws IOException {
 
         Scanner scanner = new Scanner(System.in);
         double[][] range = new double[dim][2];
@@ -116,6 +102,11 @@ public class RTree {
             }
         }
 
+        for (int i = 0; i< dim; i++){
+            range[i][0] -= 0.00000001;
+            range[i][1] += 0.00000001;
+        }
+
         LinkedList<Node> queue = new LinkedList<Node>();
         Node currNode;
         queue.add(root);
@@ -124,7 +115,7 @@ public class RTree {
             currNode = queue.poll();
             boolean flag=true;
             for(int i=0;i<dim;i++){
-                if(Calculate_OverlapValue(range, currNode.getMbr())==0){
+                if(Calculate_OverlapValue(range, currNode.getMbr())==0 ){
                     flag=false;
                 }
             }
@@ -152,6 +143,7 @@ public class RTree {
         scanner.close();  // Closes the scanner
         for (int i = 0; i < results.size(); i++) {
             System.out.println(results.get(i).getLine() + " " + results.get(i).getBlockID());
+            Results_Datafile(results.get(i).getLine(), results.get(i).getBlockID());
         }
     }
 
@@ -987,7 +979,6 @@ public class RTree {
         for(int i=0;i<dim;i++){
             overlap = overlap * Math.max(0,Math.min(mbr1[i][1],mbr2[i][1])-Math.max(mbr1[i][0],mbr2[i][0]));
         }
-
         return overlap;
     }
 

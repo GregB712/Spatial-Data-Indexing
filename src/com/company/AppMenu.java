@@ -93,6 +93,7 @@ public class AppMenu {
                 }
                 //Call RQ
                 rtree.RangeQuery(dim, givenCoor);
+                System.out.println();
                 SerialActions serialActions2 = new SerialActions(dim, givenCoor);
                 serialActions2.RQ();
                 break;
