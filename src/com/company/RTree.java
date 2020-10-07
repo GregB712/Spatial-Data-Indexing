@@ -5,6 +5,9 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.io.*;
 
+/**
+ * The class for building the R* Tree
+ */
 public class RTree {
 
     final int M = 4;  // MAX bound of entries in a node
@@ -26,6 +29,10 @@ public class RTree {
         this.root = new Node(dim,null);
     }
 
+    /**
+     * Function to get the metadata from datafile created after building the R* Tree
+     * @throws IOException
+     */
     private void Get_Metadata() throws IOException {
         FileInputStream fis = new FileInputStream(new File("datafile"));
 
@@ -53,6 +60,11 @@ public class RTree {
         br.close();
     }
 
+    /**
+     * Function to get the records from the datafile.
+     * @param line
+     * @param block
+     */
     public void Results_Datafile(int line, int block) {
 
         int skip_lines = 1;
@@ -63,6 +75,13 @@ public class RTree {
         System.out.println(lines.get(skip_lines + line-1));
     }
 
+    /**
+     * Function to insert new entry in R* Tree.
+     * @param dim
+     * @param givenCoor
+     * @param id
+     * @throws IOException
+     */
     public void InsertNewEntry(int dim, List<Double> givenCoor, String id) throws IOException {
 
         FileWriter csvWriter = new FileWriter(csvfile,true);
@@ -81,6 +100,11 @@ public class RTree {
         this.BuildRTree();
     }
 
+    /**
+     * The function to perform the range queries.
+     * @param dim
+     * @param givenCoor
+     */
     public void RangeQuery(int dim, List<Double> givenCoor) {
 
         long startTime = System.nanoTime();
@@ -153,6 +177,12 @@ public class RTree {
         System.out.println("R* Tree RangeQueries: " + duration + "ns");
     }
 
+    /**
+     * Function to get the k nearest neighbors of a point.
+     * @param dim
+     * @param knn
+     * @param givenCoor
+     */
     public void kNNQuery(int dim, int knn, List<Double> givenCoor) {
         long startTime = System.nanoTime();
 
@@ -348,8 +378,10 @@ public class RTree {
         out.close();
     }
 
-    // Build R-Tree
-
+    /**
+     * The main function of the class for building the tree.
+     * @throws IOException
+     */
     public void BuildRTree() throws IOException {
         // Parsing a CSV file into Scanner class constructor
         Scanner scanner = new Scanner(new File("datafile"));
@@ -388,7 +420,11 @@ public class RTree {
         Get_Metadata();
     }
 
-    // Function to insert a new entry into the R*Tree
+    /**
+     * Function to insert a new entry into the R*Tree.
+     * @param entry
+     * @param currNode
+     */
     private void Insert(Record entry, Node currNode){
 
         // Choose in which node we will try to insert the new entry
@@ -407,17 +443,26 @@ public class RTree {
 
     }
 
-    // According to the papers about the R*tree, the OverflowTreatment function should try to first Remove p elements
-    // from the overflown node, and then ReInsert them to the tree again to sometimes prevent splits.
-    // However, since we were asked to not implement a Remove/Delete function, we are also not able to implement the
-    // ReInsert function as well.
-
-    // As a result, the OverflowTreatment function will only invoke the Split function.
+    /**
+     * According to the papers about the R*tree, the OverflowTreatment function should try to first Remove p elements
+     * from the overflown node, and then ReInsert them to the tree again to sometimes prevent splits.
+     * However, since we were asked to not implement a Remove/Delete function, we are also not able to implement the
+     * ReInsert function as well.
+     *
+     * As a result, the OverflowTreatment function will only invoke the Split function.
+     * @param overNode
+     * @param extraEntry
+     */
     private void OverflowTreatment( Node overNode, Record extraEntry ){
         Split_Leaf(overNode,extraEntry);
     }
 
-    // Function to choose the appropriate insertion path and reach the node where we will insert a new entry.
+    /**
+     * Function to choose the appropriate insertion path and reach the node where we will insert a new entry.
+     * @param currNode
+     * @param entry
+     * @return
+     */
     private Node ChooseSubtree(Node currNode, Record entry){
 
         currNode.adjustMbr(entry);
@@ -480,7 +525,12 @@ public class RTree {
         }
     }
 
-    // Function to perform a node split ( NON-LEAF )
+
+    /**
+     * Function to perform a node split ( NON-LEAF ).
+     * @param parent
+     * @param extraNode
+     */
     private void Split_NonLeaf(Node parent, Node extraNode){
         int axis;
         List<List<Node>> bestDistribution;
@@ -553,7 +603,13 @@ public class RTree {
         }
     }
 
-    //Function to provide the new distributions so that we can create new nodes during a split ( NON-LEAF )
+    /**
+     * Function to provide the new distributions so that we can create new nodes during a split ( NON-LEAF ).
+     * @param parent
+     * @param extraNode
+     * @param axis
+     * @return
+     */
     private List<List<Node>> ChooseSplitIndex_NonLeaf(Node parent, Node extraNode, int axis) {
         List<Node> sortedNodes1 = new ArrayList<>();
         List<Node> sortedNodes2 = new ArrayList<>();
@@ -577,7 +633,12 @@ public class RTree {
     }
 
 
-    //Function to find the best possible distribution during a split ( NON-LEAF )
+    /**
+     * Function to find the best possible distribution during a split ( NON-LEAF )
+     * @param sortedNodes1
+     * @param sortedNodes2
+     * @return
+     */
     private List<List<Node>> Find_Best_Distribution_NonLeaf(List<Node> sortedNodes1, List<Node> sortedNodes2){
         double overlap;
         double area;
@@ -684,7 +745,12 @@ public class RTree {
         }
     }
 
-    // Function to determine the axis, perpendicular to which the split is performed ( NON-LEAF )
+    /**
+     * Function to determine the axis, perpendicular to which the split is performed ( NON-LEAF ).
+     * @param parent
+     * @param extraNode
+     * @return
+     */
     private int ChooseSplitAxis_NonLeaf(Node parent, Node extraNode){
         double [] S = new double[dim];
 
@@ -716,7 +782,11 @@ public class RTree {
         return minAxis;
     }
 
-    // Function to calculate the sum of all the margin-values of the different distributions ( NON-LEAF )
+    /**
+     * Function to calculate the sum of all the margin-values of the different distributions ( NON-LEAF ).
+     * @param sortedNodes
+     * @return
+     */
     private double Calculate_S_NonLeaf(List<Node> sortedNodes){
         double sum = 0;
         List<Node> group1 = new ArrayList<>();
@@ -742,7 +812,11 @@ public class RTree {
         return sum;
     }
 
-    // Function to calculate the mbr of each of the two groups during a node-split ( NON-LEAF )
+    /**
+     * Function to calculate the mbr of each of the two groups during a node-split ( NON-LEAF ).
+     * @param group
+     * @return
+     */
     private double[][] Calculate_Mbr_NonLeaf(List<Node> group){
         double[][] mbr = new double[dim][2];
 
@@ -763,7 +837,11 @@ public class RTree {
         return mbr;
     }
 
-    // Function to perform a node split ( LEAF )
+    /**
+     * Function to perform a node split ( LEAF ).
+     * @param overNode
+     * @param extraEntry
+     */
     private void Split_Leaf(Node overNode, Record extraEntry){
 
         int axis;
@@ -829,7 +907,12 @@ public class RTree {
         }
     }
 
-    // Function to determine the axis, perpendicular to which the split is performed ( LEAF )
+    /**
+     * Function to determine the axis, perpendicular to which the split is performed ( LEAF ).
+     * @param overNode
+     * @param extraEntry
+     * @return
+     */
     private int ChooseSplitAxis_Leaf(Node overNode, Record extraEntry){
         double [] S = new double[dim];
 
@@ -861,7 +944,13 @@ public class RTree {
     }
 
 
-    //Function to provide the new distributions so that we can create new nodes during a split ( LEAF )
+    /**
+     * Function to provide the new distributions so that we can create new nodes during a split ( LEAF ).
+     * @param overNode
+     * @param extraEntry
+     * @param axis
+     * @return
+     */
     private List<List<Record>> ChooseSplitIndex_Leaf(Node overNode, Record extraEntry, int axis) {
 
         List<Record> sortedEntries = new ArrayList<>();
@@ -879,7 +968,11 @@ public class RTree {
     }
 
 
-    //Function to find the best possible distribution during a split ( LEAF )
+    /**
+     * Function to find the best possible distribution during a split ( LEAF ).
+     * @param sortedEntries
+     * @return
+     */
     private List<List<Record>> Find_Best_Distribution_Leaf(List<Record> sortedEntries){
         double [] overlap = new double[M-2*m+2];
         double [] area = new double[M-2*m+2];
@@ -951,7 +1044,11 @@ public class RTree {
         return overlap;
     }
 
-    // Function to calculate the sum of all the margin-values of the different distributions ( LEAF )
+    /**
+     * Function to calculate the sum of all the margin-values of the different distributions ( LEAF ).
+     * @param sortedEntries
+     * @return
+     */
     private double Calculate_S_Leaf(List<Record> sortedEntries){
         double sum = 0;
         List<Record> group1 = new ArrayList<>();
@@ -978,7 +1075,11 @@ public class RTree {
         return sum;
     }
 
-    // Function to calculate the mbr of each of the two groups during a node-split ( LEAF )
+    /**
+     * Function to calculate the mbr of each of the two groups during a node-split ( LEAF ).
+     * @param group
+     * @return
+     */
     private double[][] Calculate_Mbr_Leaf(List<Record> group){
         double[][] mbr = new double[dim][2];
 
@@ -998,7 +1099,11 @@ public class RTree {
         return mbr;
     }
 
-    // Function to calculate the margin-value of a given mbr.
+    /**
+     * Function to calculate the margin-value of a given mbr.
+     * @param mbr
+     * @return
+     */
     private double Calculate_MarginValue(double[][] mbr){
         double sum=0;
         for(int i=0;i<dim;i++){

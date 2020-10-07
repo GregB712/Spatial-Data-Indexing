@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * The class of the menu of program.
+ */
 public class AppMenu {
 
     public void invokeMenu() throws Exception {
@@ -113,6 +116,12 @@ public class AppMenu {
         System.out.println("_________________________________________________");
     }
 
+    /**
+     * Reused code for getting coordinates from user
+     * @param dim
+     * @param scanner
+     * @param givenCoor
+     */
     private void typeCoordinates(int dim, Scanner scanner, List<Double> givenCoor){
         System.out.print("Give Coordinates: ");
         for (int i = 0; i < dim; i++) {
