@@ -1,6 +1,5 @@
 package com.company;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -152,6 +151,7 @@ public class RTree {
             Results_Datafile(results.get(i).getLine(), results.get(i).getBlockID());
         }
         System.out.println("R* Tree RangeQueries: " + duration/1000000 + "ms");
+        System.out.println("R* Tree RangeQueries: " + duration + "ns");
     }
 
     public void kNNQuery(int dim, int knn, List<Double> givenCoor) {
@@ -241,6 +241,7 @@ public class RTree {
             Results_Datafile(results[i].getLine(), results[i].getBlockID());
         }
         System.out.println("R* Tree KNN: " + duration/1000000 + "ms");
+        System.out.println("R* Tree KNN: " + duration + "ns");
         scanner.close();  // Closes the scanner
     }
 

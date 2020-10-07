@@ -1,5 +1,7 @@
 package com.company;
+
 import java.util.List;
+
 public class Record {
     private final String id;
     private final List<Double> info;

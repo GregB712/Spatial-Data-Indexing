@@ -48,7 +48,8 @@ public class SerialActions {
         long endTime = System.nanoTime();
 
         long duration = (endTime - startTime);  //divide by 1000000 to get milliseconds.
-        System.out.println("SerialKNeighbors: " + duration/1000000 + "ms");
+        System.out.println("SerialKNNeighbors: " + duration/1000000 + "ms");
+        System.out.println("SerialKNNeighbors: " + duration + "ns");
 
     }
 
@@ -66,5 +67,6 @@ public class SerialActions {
 
         long duration = (endTime - startTime);  //divide by 1000000 to get milliseconds.
         System.out.println("SerialRangeQueries: " + duration/1000000 + "ms");
+        System.out.println("SerialRangeQueries: " + duration + "ns");
     }
 }
