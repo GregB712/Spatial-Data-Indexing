@@ -12,13 +12,13 @@ public class RTree {
 
     private final int dim;
     private final String csvfile;
-    private Node root;
+    private final Node root;
 
-    private List<Integer> block_bytes = new ArrayList<>();
-    private List<Integer> block_lines = new ArrayList<>();
+    private final List<Integer> block_bytes = new ArrayList<>();
+    private final List<Integer> block_lines = new ArrayList<>();
     private List<String> lines = new ArrayList<>();
 
-    RTree(int dim, String csvfile) throws FileNotFoundException {
+    RTree(int dim, String csvfile) {
         this.dim = dim;
         this.csvfile = csvfile;
 
@@ -108,7 +108,7 @@ public class RTree {
             range[i][1] += 0.00000001;
         }
 
-        LinkedList<Node> queue = new LinkedList<Node>();
+        LinkedList<Node> queue = new LinkedList<>();
         Node currNode;
         queue.add(root);
 
@@ -122,16 +122,15 @@ public class RTree {
             }
             if(flag){
                 if (currNode.getChildren().size() != 0) {
-                    for(int i=0;i<currNode.getChildren().size();i++){
-                        queue.add(currNode.getChildren().get(i));
-                    }
+                    queue.addAll(currNode.getChildren());
                 } else {
                     for(int i=0;i<currNode.getRecords().size();i++){
                         flag=true;
                         for(int j=0;j<dim;j++){
-                            if(!(currNode.getRecords().get(i).getInfo().get(j)>=range[j][0] &&
-                                    currNode.getRecords().get(i).getInfo().get(j)<=range[j][1])){
-                                flag=false;
+                            if (!(currNode.getRecords().get(i).getInfo().get(j) >= range[j][0] &&
+                                    currNode.getRecords().get(i).getInfo().get(j) <= range[j][1])) {
+                                flag = false;
+                                break;
                             }
                         }
                         if(flag){
@@ -146,9 +145,9 @@ public class RTree {
 
         long duration = (endTime - startTime);  //divide by 1000000 to get milliseconds.
 
-        for (int i = 0; i < results.size(); i++) {
+        for (Record result : results) {
             //System.out.println(results.get(i).getLine() + " " + results.get(i).getBlockID());
-            Results_Datafile(results.get(i).getLine(), results.get(i).getBlockID());
+            Results_Datafile(result.getLine(), result.getBlockID());
         }
         System.out.println("R* Tree RangeQueries: " + duration/1000000 + "ms");
         System.out.println("R* Tree RangeQueries: " + duration + "ns");
@@ -168,7 +167,7 @@ public class RTree {
             point[i] = givenCoor.get(i);
         }
 
-        LinkedList<Node> queue = new LinkedList<Node>();
+        LinkedList<Node> queue = new LinkedList<>();
         Node currNode;
         int childSelected;
         queue.add(root);
@@ -226,18 +225,11 @@ public class RTree {
                 queue.add(currNode.getChildren().get(childSelected));
             }
         }
-//        for(int i=0;i<knn;i++){
-//            for(int j=0;j<dim;j++) {
-//                System.out.print(results[i].getInfo().get(j) + " ");
-//            }
-//            System.out.println();
-//        }
+
         long endTime = System.nanoTime();
 
         long duration = (endTime - startTime);  //divide by 1000000 to get milliseconds.
         for (int i = 0; i < knn; i++) {
-            //System.out.println();
-            //System.out.println(results[i].getLine() + " " + results[i].getBlockID());
             Results_Datafile(results[i].getLine(), results[i].getBlockID());
         }
         System.out.println("R* Tree KNN: " + duration/1000000 + "ms");
@@ -247,8 +239,8 @@ public class RTree {
 
     static void parallelBubbleSort(double[] arr, Record[] arr2) {
         int n = arr.length;
-        double temp = 0;
-        Record temp2 = null;
+        double temp;
+        Record temp2;
         for (int i = 0; i < n; i++) {
             for (int j = 1; j < (n - i); j++) {
                 if (arr[j - 1] > arr[j]) {
@@ -281,11 +273,7 @@ public class RTree {
             pj = point[i];
             if(pj<mbr[i][0]) {
                 rj = mbr[i][0];
-            }else if(pj>mbr[i][1]){
-                rj = mbr[i][1];
-            }else{
-                rj = pj;
-            }
+            }else rj = Math.min(pj, mbr[i][1]);
 
             sum+=Math.pow(Math.abs(pj-rj),2);
         }
@@ -305,13 +293,11 @@ public class RTree {
         int id=0;
         int fatherId;
         int childrenId=1;
-        boolean flag=false;
-        LinkedList<Node> queue = new LinkedList<Node>();
-        LinkedList<Integer> queueF = new LinkedList<Integer>();
+        LinkedList<Node> queue = new LinkedList<>();
+        LinkedList<Integer> queueF = new LinkedList<>();
         queue.add(root);
         queueF.add(id);
         Node currNode;
-        int bytes=0;
 
         while (queue.size() != 0) {
             currNode = queue.poll();
@@ -335,10 +321,7 @@ public class RTree {
                 out.print(childrenId + " ");
             }
             if(currNode.getChildren().size()==0){                 // THIS IS TO LOOK FOR FIRST CHILD FOUND, SO THAT WE
-                if(!flag){                                  // CAN STORE ITS LINE AS METADATA IN THE INDEXFILE
-                    flag=true;
-                    String leavesBeginHere="Write the line on first line of the indexfile";
-                }
+
                 out.println();
                 for(int i=0;i<currNode.getRecords().size();i++){
                     for(int j=0; j<dim;j++){
@@ -382,7 +365,7 @@ public class RTree {
             parts = string.split("\\s+");
             metadata.add(parts[1]);
         }
-        int line = Integer.parseInt(metadata.get(0)); //current line of file (for future usage)
+
         // Loop through the CSVFile lines to get id and coordinates based on dimension parameter
         // We need the following csv format:
         // 1st element = id
@@ -398,10 +381,7 @@ public class RTree {
                 for (int q = 0; q < dim; q++) {
                     coordinates.add(Double.valueOf(parts[q+1]));
                 }
-                int temp = j+1;
-                //System.out.println(parts[0] + " " + coordinates + " " + temp + " " + i);
                 Insert(new Record(parts[0],coordinates,j+1, i), root); // j is line inside block, i is blockID
-                //coordinates.clear();
             }
         }
         scanner.close();  // Closes the scanner
@@ -577,7 +557,7 @@ public class RTree {
     private List<List<Node>> ChooseSplitIndex_NonLeaf(Node parent, Node extraNode, int axis) {
         List<Node> sortedNodes1 = new ArrayList<>();
         List<Node> sortedNodes2 = new ArrayList<>();
-        List<List<Node>> bestDistribution = new ArrayList<>();
+        List<List<Node>> bestDistribution;
 
         sortedNodes1.add(extraNode);
         sortedNodes2.add(extraNode);
@@ -587,20 +567,10 @@ public class RTree {
         }
 
         // Sort based on the lower value of the rectangles
-        sortedNodes1.sort(new Comparator<Node>() {
-            @Override
-            public int compare(Node o1, Node o2) {
-                return Double.compare(o1.getMbr()[axis][0], o2.getMbr()[axis][0]);
-            }
-        });
+        sortedNodes1.sort(Comparator.comparingDouble(o -> o.getMbr()[axis][0]));
 
         // Sort based on the upper value of the rectangles
-        sortedNodes2.sort(new Comparator<Node>() {
-            @Override
-            public int compare(Node o1, Node o2) {
-                return Double.compare(o1.getMbr()[axis][1], o2.getMbr()[axis][1]);
-            }
-        });
+        sortedNodes2.sort(Comparator.comparingDouble(o -> o.getMbr()[axis][1]));
 
         bestDistribution = Find_Best_Distribution_NonLeaf(sortedNodes1,sortedNodes2);
         return bestDistribution;
@@ -609,8 +579,8 @@ public class RTree {
 
     //Function to find the best possible distribution during a split ( NON-LEAF )
     private List<List<Node>> Find_Best_Distribution_NonLeaf(List<Node> sortedNodes1, List<Node> sortedNodes2){
-        double overlap=0;
-        double area=0;
+        double overlap;
+        double area;
 
         List<Node> group1 = new ArrayList<>();
         List<Node> group2 = new ArrayList<>();
@@ -729,12 +699,7 @@ public class RTree {
             int axisUsed = axis;
             for (int i=0;i<2;i++){      // Calculate S according to the upper and lower values of the rectangles
                 int iUsed = i;
-                sortedNodes.sort(new Comparator<Node>() {
-                    @Override
-                    public int compare(Node o1, Node o2) {
-                        return Double.compare(o1.getMbr()[axisUsed][iUsed], o2.getMbr()[axisUsed][iUsed]);
-                    }
-                });
+                sortedNodes.sort(Comparator.comparingDouble(o -> o.getMbr()[axisUsed][iUsed]));
                 S[axis] += Calculate_S_NonLeaf(sortedNodes);
             }
         }
@@ -782,15 +747,15 @@ public class RTree {
         double[][] mbr = new double[dim][2];
 
         for(int i=0;i<dim;i++){
-            for (int j=0;j<group.size();j++){
-                double upper = group.get(j).getMbr()[i][1];
-                double lower = group.get(j).getMbr()[i][0];
+            for (Node node : group) {
+                double upper = node.getMbr()[i][1];
+                double lower = node.getMbr()[i][0];
 
                 // In every dimension axis check if we need to adjust any of the upper or lower bounds of the mbr.
-                if(lower<mbr[i][0] || mbr[i][0]==0){         //Check lower bound of mbr
+                if (lower < mbr[i][0] || mbr[i][0] == 0) {         //Check lower bound of mbr
                     mbr[i][0] = lower;
                 }
-                if(upper>mbr[i][1] || mbr[i][1]==0){         //Check upper bound of mbr
+                if (upper > mbr[i][1] || mbr[i][1] == 0) {         //Check upper bound of mbr
                     mbr[i][1] = upper;
                 }
             }
@@ -878,12 +843,7 @@ public class RTree {
 
             int axisUsed = axis;
 
-            sortedEntries.sort(new Comparator<Record>() {
-                @Override
-                public int compare(Record o1, Record o2) {
-                    return Double.compare(o1.getInfo().get(axisUsed), o2.getInfo().get(axisUsed));
-                }
-            });
+            sortedEntries.sort(Comparator.comparingDouble(o -> o.getInfo().get(axisUsed)));
 
             S[axis] = Calculate_S_Leaf(sortedEntries);
         }
@@ -905,19 +865,14 @@ public class RTree {
     private List<List<Record>> ChooseSplitIndex_Leaf(Node overNode, Record extraEntry, int axis) {
 
         List<Record> sortedEntries = new ArrayList<>();
-        List<List<Record>> bestDistribution = new ArrayList<>();
+        List<List<Record>> bestDistribution;
 
         sortedEntries.add(extraEntry);
         for (int j = 0; j < M; j++) {
             sortedEntries.add(overNode.getRecords().get(j));
         }
 
-        sortedEntries.sort(new Comparator<Record>() {
-            @Override
-            public int compare(Record o1, Record o2) {
-                return Double.compare(o1.getInfo().get(axis), o2.getInfo().get(axis));
-            }
-        });
+        sortedEntries.sort(Comparator.comparingDouble(o -> o.getInfo().get(axis)));
 
         bestDistribution = Find_Best_Distribution_Leaf(sortedEntries);
         return bestDistribution;
@@ -1028,14 +983,14 @@ public class RTree {
         double[][] mbr = new double[dim][2];
 
         for(int i=0;i<dim;i++){
-            for (int j=0;j<group.size();j++){
-                double entryCoord = group.get(j).getInfo().get(i);
+            for (Record record : group) {
+                double entryCoord = record.getInfo().get(i);
 
                 // In every dimension axis check if we need to adjust any of the upper or lower bounds of the mbr.
-                if(entryCoord<mbr[i][0] || mbr[i][0]==0){         //Check lower bound of mbr
+                if (entryCoord < mbr[i][0] || mbr[i][0] == 0) {         //Check lower bound of mbr
                     mbr[i][0] = entryCoord;
                 }
-                if(entryCoord>mbr[i][1] || mbr[i][1]==0){         //Check upper bound of mbr
+                if (entryCoord > mbr[i][1] || mbr[i][1] == 0) {         //Check upper bound of mbr
                     mbr[i][1] = entryCoord;
                 }
             }
