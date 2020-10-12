@@ -3,6 +3,10 @@
 
 ## Spatial Data Indexing - R*-Tree 
 
+<p align="center">
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/RTree-Visualization-3D.svg/400px-RTree-Visualization-3D.svg.png" width="220">
+</p>
+
 ### Purpose
 
 The purpose of this project was the development of an R*-Tree, a tree data struture that can store multi-dimensional data in a more efficient way than the conventional R-Tree. 
@@ -25,10 +29,19 @@ Minimization of both **coverage** and **overlap** is crucial to the performance 
 - **Reinsertion method** optimizes the existing tree, but increases complexity. ***( NOT IMPLEMENTED )***
 - Efficiently **supports point and spatial data** at the same time.
 
-### Example
+#### Source: Wikipedia [R-Tree](https://en.wikipedia.org/wiki/R-tree) and [R*-Tree](https://en.wikipedia.org/wiki/R*_tree).
+
+
+### Visualization Examples
 
 #### 2D
 Representation of the world based on the leaf nodes stored from the [simplemaps](https://simplemaps.com/data/world-cities) dataset into the R*-Tree (~ 26.000 entries )
+![](images/world1.png)
 
 #### 3D
-Representation of the world using the leaf id as the z-axis atribute.
+Representation of the world using the leaf-ID as the third axis attribute.
+2D             |  3D
+:-------------------------:|:-------------------------:
+![](images/world2.png) |  ![](images/world3.png)
+
+
