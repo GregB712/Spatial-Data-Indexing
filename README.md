@@ -1,5 +1,5 @@
-﻿#### *Data-Base Technology 2020, 6th Semester of Computer Science Dept. @ Aristotle University of Thessaloniki*
- 
+﻿### *Data-Base Technology 2020, 6th Semester of Computer Science Dept. @ Aristotle University of Thessaloniki*
+***Developers: [GregB712](https://github.com/GregB712), [SotirisFtiakas](https://github.com/SotirisFtiakas).***
 
 ## Spatial Data Indexing - R*-Tree 
 
